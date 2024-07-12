@@ -23,6 +23,9 @@ Item {
     property int speed: 5;
     readonly property int duration: (25 * (11 - speed) + 25)* textAndSpacing.length;
 
+    // Align the text in the center
+    property int horizontalAlignment: Text.AlignLeft
+
     readonly property bool pauseScrolling: {
         if (overflowBehaviour === ScrollingText.OverflowBehaviour.AlwaysScroll) {
             return false;
@@ -59,45 +62,123 @@ Item {
         text: root.text
     }
 
-    PlasmaComponents3.Label {
-        id: label
-        text: overflow ? root.textAndSpacing : root.text
+    // PlasmaComponents3.Label {
+    //     id: label
+    //     text: overflow ? root.textAndSpacing : root.text
+    //     horizontalAlignment: root.horizontalAlignment
+    //     width: parent.width // Ensure the label takes full width of its parent
 
-        NumberAnimation on x {
-            running: root.overflow
-            paused: root.pauseScrolling
-            from: 0
-            to: -label.implicitWidth
-            duration: root.duration
-            loops: Animation.Infinite
+    //     NumberAnimation on x {
+    //         running: root.overflow
+    //         paused: root.pauseScrolling
+    //         from: root.horizontalAlignment === Text.AlignHCenter ? (root.width - label.implicitWidth) / 2 : 0
+    //         to: -label.implicitWidth
+    //         duration: root.duration
+    //         loops: Animation.Infinite
 
-            function reset() {
-                label.x = 0;
-                if (running) {
-                    restart()
-                }
-                if (root.pauseScrolling) {
-                    pause()
-                }
-            }
+    //         function reset() {
+    //             label.x = root.horizontalAlignment === Text.AlignHCenter ? (root.width - label.implicitWidth) / 2 : 0;
+    //             if (running) {
+    //                 restart()
+    //             }
+    //             if (root.pauseScrolling) {
+    //                 pause()
+    //             }
+    //         }
 
-            onRunningChanged: () => {
-                // When `running` becomes true the animation start regardless of the `pauseScrolling` value.
-                // Manually pause the animation if the `pauseScrolling` value is true.
-                if (running && root.pauseScrolling) {
-                    pause()
-                }
-            }
-            onToChanged: () => reset()
-            onDurationChanged: () =>  reset()
+    //         onRunningChanged: () => {
+    //             // When `running` becomes true the animation start regardless of the `pauseScrolling` value.
+    //             // Manually pause the animation if the `pauseScrolling` value is true.
+    //             if (running && root.pauseScrolling) {
+    //                 pause()
+    //             }
+    //         }
+    //         onToChanged: () => reset()
+    //         onDurationChanged: () =>  reset()
+    //     }
+
+    //     PlasmaComponents3.Label {
+    //         visible: overflow
+    //         anchors.left: parent.right
+    //         horizontalAlignment: root.horizontalAlignment
+    //         width: parent.width
+
+    //         font: label.font
+    //         text: label.text
+    //     }
+    // }
+
+    readonly property bool shouldScroll: textMetrics.width > width
+
+    Item {
+        id: textContainer
+        width: shouldScroll ? label.width * 2 + root.spacing.length * label.font.pixelSize : label.width
+        height: label.height
+
+        PlasmaComponents3.Label {
+            id: label
+            text: root.text
+            horizontalAlignment: root.horizontalAlignment
+            width: Math.max(implicitWidth, root.width)
+            elide: Text.ElideNone
         }
 
         PlasmaComponents3.Label {
-            visible: overflow
-            anchors.left: parent.right
-
+            id: repeatLabel
+            visible: shouldScroll
+            anchors.left: label.right
+            horizontalAlignment: root.horizontalAlignment
+            width: label.width
+            height: label.height
+            text: root.spacing + root.text
             font: label.font
-            text: label.text
+        }
+    }
+
+    NumberAnimation {
+        id: scrollAnimation
+        target: textContainer
+        property: "x"
+        from: 0
+        to: -label.width - root.spacing.length * label.font.pixelSize
+        duration: root.duration
+        loops: Animation.Infinite
+        running: false  // We'll control this manually
+
+        onRunningChanged: {
+            if (running) {
+                from = 0;
+                to = -label.width - root.spacing.length * label.font.pixelSize;
+                restart();
+            }
+        }
+    }
+
+    onWidthChanged: Qt.callLater(updateScroll)
+    onTextChanged: Qt.callLater(updateScroll)
+    onPauseScrollingChanged: Qt.callLater(updateScroll)
+    Component.onCompleted: Qt.callLater(updateScroll)
+
+    function updateScroll() {
+        scrollAnimation.stop();
+        if (shouldScroll) {
+            textContainer.x = 0;
+            if (!root.pauseScrolling) {
+                scrollAnimation.start();
+            }
+        } else {
+            textContainer.x = (root.width - textContainer.width) / 2;
+        }
+    }
+
+    // Make the function callable from outside
+    function forceUpdateScroll() {
+        Qt.callLater(updateScroll);
+    }
+
+    Behavior on width {
+        NumberAnimation {
+            duration: 100
         }
     }
 }

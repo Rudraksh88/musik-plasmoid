@@ -151,20 +151,26 @@ PlasmoidItem {
     }
 
     fullRepresentation: Item {
+        id: fullRep
+        Layout.preferredWidth: Math.max(300, imageContainer.width + 40)  // Minimum width of 300
         Layout.preferredHeight: column.implicitHeight
-        Layout.preferredWidth: column.implicitWidth
+        Layout.minimumWidth: 300
+        Layout.minimumHeight: 300
 
         ColumnLayout {
             id: column
 
-            spacing: 0
+            // spacing: 0
             anchors.fill: parent
+            spacing: Kirigami.Units.largeSpacing
 
             Rectangle {
+                id: imageContainer
                 Layout.alignment: Qt.AlignHCenter
-                Layout.margins: 10
-                width: 300
-                height: width
+                Layout.preferredWidth: Math.min(fullRep.width - 40, fullRep.height - 160)  // Subtract space for other elements
+                Layout.preferredHeight: Layout.preferredWidth
+                Layout.topMargin: Kirigami.Units.largeSpacing
+                color: "transparent"
 
                 Image {
                     anchors.fill: parent
@@ -177,6 +183,10 @@ PlasmoidItem {
             TrackPositionSlider {
                 Layout.leftMargin: 20
                 Layout.rightMargin: 20
+
+                Layout.preferredWidth: imageContainer.width
+                Layout.alignment: Qt.AlignHCenter
+
                 songPosition: player.songPosition
                 songLength: player.songLength
                 playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
@@ -190,20 +200,38 @@ PlasmoidItem {
             }
 
             ScrollingText {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
+                horizontalAlignment: Text.AlignHCenter
+
                 speed: plasmoid.configuration.textScrollingSpeed
-                font: widget.boldTextFont
-                maxWidth: 250
+                font: Qt.font({
+                    family: widget.boldTextFont.family,
+                    weight: Font.Bold,
+                    pixelSize: 22
+                })
+                maxWidth: imageContainer.width
                 text: player.title
             }
 
             ScrollingText {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
+                horizontalAlignment: Text.AlignHCenter
+
                 speed: plasmoid.configuration.textScrollingSpeed
-                font: widget.textFont
-                maxWidth: 250
+                font: Qt.font({
+                    family: widget.textFont.family,
+                    pixelSize: 15
+                })
+                maxWidth: imageContainer.width
                 text: player.artists
             }
 
             VolumeBar {
+                Layout.preferredWidth: imageContainer.width
+                Layout.alignment: Qt.AlignHCenter
+
                 Layout.leftMargin: 40
                 Layout.rightMargin: 40
                 Layout.topMargin: 10
@@ -214,11 +242,14 @@ PlasmoidItem {
             }
 
             Item {
+                Layout.preferredWidth: imageContainer.width
+                Layout.preferredHeight: row.implicitHeight
+                Layout.alignment: Qt.AlignHCenter
+
                 Layout.leftMargin: 20
                 Layout.rightMargin: 20
                 Layout.bottomMargin: 10
                 Layout.fillWidth: true
-                Layout.preferredHeight: row.implicitHeight
                 RowLayout {
                     id: row
 
@@ -238,7 +269,12 @@ PlasmoidItem {
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.medium
                         source: "media-skip-backward"
-                        onClicked: player.previous()
+                        onClicked: {
+                            player.previous()
+                            // Call forceUpdateScroll() from the ScrollingText.qml
+                            titleText.forceUpdateScroll()
+                            artistText.forceUpdateScroll()
+                        }
                     }
 
                     CommandIcon {
@@ -246,7 +282,11 @@ PlasmoidItem {
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.large
                         source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "currenttrack_pause" : "currenttrack_play"
-                        onClicked: player.playPause()
+                        onClicked: {
+                            player.playPause()
+                            titleText.forceUpdateScroll()
+                            artistText.forceUpdateScroll()
+                        }
                     }
 
                     CommandIcon {
@@ -254,7 +294,12 @@ PlasmoidItem {
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.medium
                         source: "media-skip-forward"
-                        onClicked: player.next()
+                        onClicked: {
+                            player.next()
+                            // Call forceUpdateScroll() from the ScrollingText.qml
+                            titleText.forceUpdateScroll()
+                            artistText.forceUpdateScroll()
+                        }
                     }
 
                     CommandIcon {
