@@ -1,0 +1,22 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "rudraksh.tripathi8@gmail.com",
+                "Name": "Rudraksh Tripathi"
+            }
+        ],
+        "Icon": "view-media-track",
+        "Id": "plasmusic-toolbar",
+        "License": "GPL3",
+        "Name": "MusiK Widget",
+        "Version": "1.0.0",
+        "Category": "Multimedia"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-Provides": [
+        "org.kde.plasma.multimediacontrols"
+    ]
+}
+
