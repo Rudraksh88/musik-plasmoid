@@ -35,6 +35,7 @@ PlasmoidItem {
         readonly property real controlsSize: Math.min(height, Kirigami.Units.iconSizes.medium)
 
         MouseArea {
+            id: mouseArea
             anchors.fill: parent
             onClicked: {
                 widget.expanded = !widget.expanded;
@@ -57,7 +58,7 @@ PlasmoidItem {
                 Layout.leftMargin: Kirigami.Units.smallSpacing * 2
             }
 
-
+            // Separate Title and Artist
             Item {
                 visible: plasmoid.configuration.separateText
                 Layout.preferredHeight: column.implicitHeight
@@ -117,45 +118,84 @@ PlasmoidItem {
                 Layout.rightMargin: -5 // Some spacing to the right of the text
             }
 
-            PlasmaComponents3.ToolButton {
-                visible: plasmoid.configuration.commandsInPanel
-                enabled: player.canGoPrevious
-                icon.name: "gtk-go-forward-rtl"
-                implicitWidth: compact.controlsSize
-                implicitHeight: compact.controlsSize
-                onClicked: player.previous()
-            }
+            // PlasmaComponents3.ToolButton {
+            //     visible: plasmoid.configuration.commandsInPanel
+            //     enabled: player.canGoPrevious
+            //     icon.name: "gtk-go-forward-rtl"
+            //     implicitWidth: compact.controlsSize
+            //     implicitHeight: compact.controlsSize
+            //     onClicked: player.previous()
+            // }
 
-            PlasmaComponents3.ToolButton {
-                visible: plasmoid.configuration.commandsInPanel
-                enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
-                implicitWidth: compact.controlsSize
-                implicitHeight: compact.controlsSize
-                icon.name: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "currenttrack_pause" : "media-playback-start-symbolic"
-                onClicked: player.playPause()
-            }
+            // PlasmaComponents3.ToolButton {
+            //     visible: plasmoid.configuration.commandsInPanel
+            //     enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
+            //     implicitWidth: compact.controlsSize
+            //     implicitHeight: compact.controlsSize
+            //     icon.name: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "currenttrack_pause" : "media-playback-start-symbolic"
+            //     onClicked: player.playPause()
+            // }
 
-            PlasmaComponents3.ToolButton {
-                visible: plasmoid.configuration.commandsInPanel
-                enabled: player.canGoNext
-                implicitWidth: compact.controlsSize
-                implicitHeight: compact.controlsSize
-                icon.name: "gtk-go-forward-ltr"
-                onClicked: player.next()
+            // PlasmaComponents3.ToolButton {
+            //     visible: plasmoid.configuration.commandsInPanel
+            //     enabled: player.canGoNext
+            //     implicitWidth: compact.controlsSize
+            //     implicitHeight: compact.controlsSize
+            //     icon.name: "gtk-go-forward-ltr"
+            //     onClicked: player.next()
 
-                // Reduce left margin to make the button closer to the previous button
-                Layout.leftMargin: -2
-                Layout.rightMargin: 4
+            //     // Reduce left margin to make the button closer to the previous button
+            //     // Layout.leftMargin: -2
+            //     Layout.rightMargin: 4
+            // }
+
+            // Move the tool buttons to a row grid layout
+            RowLayout {
+                Layout.alignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+                Layout.leftMargin: 0 // Space to the left of the buttons
+                Layout.rightMargin: 0 // Space to the right of the buttons
+                Layout.minimumWidth: controlsSize * 3
+                Layout.maximumWidth: controlsSize * 3
+                spacing: 0 // Space between the buttons
+
+                PlasmaComponents3.ToolButton {
+                    visible: plasmoid.configuration.commandsInPanel
+                    enabled: player.canGoPrevious
+                    icon.name: "gtk-go-forward-rtl"
+                    implicitWidth: compact.controlsSize
+                    implicitHeight: compact.controlsSize
+                    onClicked: player.previous()
+                }
+
+                PlasmaComponents3.ToolButton {
+                    visible: plasmoid.configuration.commandsInPanel
+                    enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
+                    implicitWidth: compact.controlsSize
+                    implicitHeight: compact.controlsSize
+                    icon.name: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "currenttrack_pause" : "media-playback-start-symbolic"
+                    onClicked: player.playPause()
+                }
+
+                PlasmaComponents3.ToolButton {
+                    visible: plasmoid.configuration.commandsInPanel
+                    enabled: player.canGoNext
+                    implicitWidth: compact.controlsSize
+                    implicitHeight: compact.controlsSize
+                    icon.name: "gtk-go-forward-ltr"
+                    onClicked: player.next()
+                }
             }
         }
     }
 
     fullRepresentation: Item {
         id: fullRep
-        Layout.preferredWidth: Math.max(300, imageContainer.width + 40)  // Minimum width of 300
-        Layout.preferredHeight: column.implicitHeight
+        Layout.preferredWidth: Math.max(300, imageContainer.width + 20)  // Minimum width of 300
+        Layout.preferredHeight: Math.max(300, imageContainer.height + 20)  // Minimum height of 300
         Layout.minimumWidth: 300
-        Layout.minimumHeight: 300
+        // Set minimum height to the content height
+        Layout.minimumHeight: column.implicitHeight
 
         ColumnLayout {
             id: column
@@ -167,7 +207,7 @@ PlasmoidItem {
             Rectangle {
                 id: imageContainer
                 Layout.alignment: Qt.AlignHCenter
-                Layout.preferredWidth: Math.min(fullRep.width - 40, fullRep.height - 160)  // Subtract space for other elements
+                Layout.preferredWidth: Math.min(fullRep.width - 20, fullRep.height - 160)  // Subtract space for other elements
                 Layout.preferredHeight: Layout.preferredWidth
                 Layout.topMargin: Kirigami.Units.largeSpacing
                 color: "transparent"
@@ -181,8 +221,8 @@ PlasmoidItem {
             }
 
             TrackPositionSlider {
-                Layout.leftMargin: 20
-                Layout.rightMargin: 20
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
 
                 Layout.preferredWidth: imageContainer.width
                 Layout.alignment: Qt.AlignHCenter
@@ -202,7 +242,7 @@ PlasmoidItem {
             ScrollingText {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
-                horizontalAlignment: Text.AlignHCenter
+                // horizontalAlignment: Text.AlignHCenter
 
                 speed: plasmoid.configuration.textScrollingSpeed
                 font: Qt.font({
@@ -212,12 +252,15 @@ PlasmoidItem {
                 })
                 maxWidth: imageContainer.width
                 text: player.title
+
+                // Top margin to add some space between the title and the artist
+                Layout.topMargin: 5
             }
 
             ScrollingText {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
-                horizontalAlignment: Text.AlignHCenter
+                // horizontalAlignment: Text.AlignHCenter
 
                 speed: plasmoid.configuration.textScrollingSpeed
                 font: Qt.font({
@@ -226,6 +269,9 @@ PlasmoidItem {
                 })
                 maxWidth: imageContainer.width
                 text: player.artists
+
+                // Top margin to add some space between the title and the artist
+                Layout.topMargin: -3
             }
 
             VolumeBar {
@@ -246,12 +292,15 @@ PlasmoidItem {
                 Layout.preferredHeight: row.implicitHeight
                 Layout.alignment: Qt.AlignHCenter
 
-                Layout.leftMargin: 20
-                Layout.rightMargin: 20
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
                 Layout.bottomMargin: 10
                 Layout.fillWidth: true
+
                 RowLayout {
                     id: row
+
+                    spacing: -45
 
                     anchors.fill: parent
 
