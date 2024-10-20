@@ -25,6 +25,11 @@ PlasmoidItem {
         }
     }
 
+    Mpris.Mpris2Model {
+        id: mpris2Source
+        readonly property string sourceName: mpris2Source.currentPlayer.identity.toLowerCase()
+    }
+
     compactRepresentation: Item {
         id: compact
 
@@ -162,7 +167,7 @@ PlasmoidItem {
                 PlasmaComponents3.ToolButton {
                     visible: plasmoid.configuration.commandsInPanel
                     enabled: player.canGoPrevious
-                    icon.name: "gtk-go-forward-rtl"
+                    icon.name: "arrow-left"
                     implicitWidth: compact.controlsSize
                     implicitHeight: compact.controlsSize
                     onClicked: player.previous()
@@ -182,7 +187,7 @@ PlasmoidItem {
                     enabled: player.canGoNext
                     implicitWidth: compact.controlsSize
                     implicitHeight: compact.controlsSize
-                    icon.name: "gtk-go-forward-ltr"
+                    icon.name: "arrow-right"
                     onClicked: player.next()
                 }
             }
@@ -203,6 +208,18 @@ PlasmoidItem {
             // spacing: 0
             anchors.fill: parent
             spacing: Kirigami.Units.largeSpacing
+
+            // Debug MPRIS source
+            // Text {
+            //     id: sourceNameText
+            //     // text: "MPRIS Source: " + mpris2Source.currentPlayer.identity.toLowerCase()
+            //     text: "MPRIS Source: " + mpris2Source.sourceName
+            //     color: Kirigami.Theme.textColor
+            //     font.pixelSize: 12
+            //     anchors.horizontalCenter: parent.horizontalCenter
+            //     // Add bottom padding
+            //     Layout.bottomMargin: 20
+            // }
 
             Rectangle {
                 id: imageContainer
@@ -254,7 +271,7 @@ PlasmoidItem {
                 text: player.title
 
                 // Top margin to add some space between the title and the artist
-                Layout.topMargin: 5
+                Layout.topMargin: 15
             }
 
             ScrollingText {
@@ -265,13 +282,14 @@ PlasmoidItem {
                 speed: plasmoid.configuration.textScrollingSpeed
                 font: Qt.font({
                     family: widget.textFont.family,
-                    pixelSize: 15
+                    pixelSize: 16
                 })
                 maxWidth: imageContainer.width
                 text: player.artists
+                opacity: 0.6
 
                 // Top margin to add some space between the title and the artist
-                Layout.topMargin: -3
+                Layout.topMargin: -5
             }
 
             VolumeBar {
@@ -280,9 +298,9 @@ PlasmoidItem {
 
                 Layout.leftMargin: 40
                 Layout.rightMargin: 40
-                Layout.topMargin: 10
+                Layout.topMargin: 20
                 volume: player.volume
-                onChangeVolume: (vol) => {
+                onChangeVolume: (player_endvol) => {
                     player.setVolume(vol)
                 }
             }
@@ -292,9 +310,10 @@ PlasmoidItem {
                 Layout.preferredHeight: row.implicitHeight
                 Layout.alignment: Qt.AlignHCenter
 
+                Layout.topMargin: 20
                 Layout.leftMargin: 10
                 Layout.rightMargin: 10
-                Layout.bottomMargin: 10
+                Layout.bottomMargin: 20
                 Layout.fillWidth: true
 
                 RowLayout {
@@ -317,7 +336,7 @@ PlasmoidItem {
                         enabled: player.canGoPrevious
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.medium
-                        source: "media-skip-backward"
+                        source: "player_prev"
                         onClicked: {
                             player.previous()
                             // Call forceUpdateScroll() from the ScrollingText.qml
@@ -342,7 +361,7 @@ PlasmoidItem {
                         enabled: player.canGoNext
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.medium
-                        source: "media-skip-forward"
+                        source: "player_next"
                         onClicked: {
                             player.next()
                             // Call forceUpdateScroll() from the ScrollingText.qml

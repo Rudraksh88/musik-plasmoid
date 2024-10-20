@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.15
 import Qt5Compat.GraphicalEffects
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.kirigami as Kirigami
+import org.kde.plasma.private.mpris as Mpris
 
 Item {
     id: root
@@ -11,6 +12,11 @@ Item {
     property var imageRadius: null
     property var icon: null
     property real size: Kirigami.Units.iconSizes.medium
+
+    Mpris.Mpris2Model {
+        id: mpris2Source
+        readonly property string sourceName: mpris2Source.currentPlayer.identity.toLowerCase()
+    }
 
     Layout.preferredHeight: size
     Layout.preferredWidth: size
@@ -30,7 +36,9 @@ Item {
     Kirigami.Icon {
         visible: type === "icon"
         id: iconComponent
-        source: root.icon
+        // source: root.icon
+        // Set source icon based on the current player
+        source: mpris2Source.sourceName.includes('brave') ? "brave_mono" : mpris2Source.sourceName.includes('fooyin') ? "spotify_mono" : mpris2Source.sourceName.includes('firefox') ? "firefox_mono" : mpris2Source.sourceName.includes('chrome') ? "chrome_mono" : "music_mono"
         width: 25
         height: 25
         color: Kirigami.Theme.textColor
