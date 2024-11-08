@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import Qt5Compat.GraphicalEffects
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.plasmoid
 import org.kde.plasma.components as PlasmaComponents3
@@ -203,6 +204,8 @@ PlasmoidItem {
         // Set minimum height to the content height
         Layout.minimumHeight: column.implicitHeight
 
+        Layout.maximumWidth: 500
+
         ColumnLayout {
             id: column
 
@@ -222,22 +225,53 @@ PlasmoidItem {
             //     Layout.bottomMargin: 20
             // }
 
+            // Rectangle {
+            //     id: imageContainer
+            //     Layout.alignment: Qt.AlignHCenter
+            //     Layout.preferredWidth: Math.min(fullRep.width - 10, fullRep.height - 160)  // Subtract space for other elements
+            //     Layout.preferredHeight: Layout.preferredWidth
+            //     Layout.topMargin: 5
+            //     color: "transparent"
+
+            //     Image {
+            //         anchors.fill: parent
+            //         visible: player.artUrl
+            //         source: player.artUrl
+            //         fillMode: Image.PreserveAspectFit
+            //     }
+
+            //     Layout.bottomMargin: 12
+            // }
+
             Rectangle {
                 id: imageContainer
                 Layout.alignment: Qt.AlignHCenter
-                Layout.preferredWidth: Math.min(fullRep.width - 10, fullRep.height - 160)  // Subtract space for other elements
+                Layout.preferredWidth: Math.min(fullRep.width - 10, fullRep.height - 160)
                 Layout.preferredHeight: Layout.preferredWidth
-                Layout.topMargin: 5
+                Layout.topMargin: 4
+                Layout.bottomMargin: 10
                 color: "transparent"
 
+                // Add radius to the Rectangle
+                radius: 4  // Adjust this value to control corner roundness
+
                 Image {
+                    id: albumArt
                     anchors.fill: parent
                     visible: player.artUrl
                     source: player.artUrl
                     fillMode: Image.PreserveAspectFit
-                }
 
-                Layout.bottomMargin: 12
+                    // Add layer to enable clipping with rounded corners
+                    layer.enabled: true
+                    layer.effect: OpacityMask {
+                        maskSource: Rectangle {
+                            width: albumArt.width
+                            height: albumArt.height
+                            radius: imageContainer.radius
+                        }
+                    }
+                }
             }
 
             ScrollingText {
