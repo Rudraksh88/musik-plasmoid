@@ -115,10 +115,13 @@ Item {
         width: shouldScroll ? label.width * 2 + root.spacing.length * label.font.pixelSize : label.width
         height: label.height
 
+        Layout.alignment: Qt.AlignHCenter
+
+
         PlasmaComponents3.Label {
             id: label
             text: root.text
-            horizontalAlignment: root.horizontalAlignment
+            // horizontalAlignment: root.horizontalAlignment
             width: Math.max(implicitWidth, root.width)
             elide: Text.ElideNone
         }
@@ -127,7 +130,7 @@ Item {
             id: repeatLabel
             visible: shouldScroll
             anchors.left: label.right
-            horizontalAlignment: root.horizontalAlignment
+            // horizontalAlignment: root.horizontalAlignment
             width: label.width
             height: label.height
             text: root.spacing + root.text

@@ -61,6 +61,7 @@ PlasmoidItem {
                 imageRadius: plasmoid.configuration.albumCoverRadius
                 type: plasmoid.configuration.useAlbumCoverAsPanelIcon ? "image": "icon"
                 Layout.leftMargin: Kirigami.Units.smallSpacing * 2
+                Layout.rightMargin: 3
             }
 
             // Separate Title and Artist
@@ -158,7 +159,7 @@ PlasmoidItem {
             RowLayout {
                 Layout.alignment: Qt.AlignVCenter
                 Layout.fillWidth: true
-                Layout.leftMargin: 0 // Space to the left of the buttons
+                Layout.leftMargin: 6 // Space to the left of the buttons
                 Layout.rightMargin: 0 // Space to the right of the buttons
                 Layout.minimumWidth: controlsSize * 3
                 Layout.maximumWidth: controlsSize * 3
@@ -196,9 +197,9 @@ PlasmoidItem {
 
     fullRepresentation: Item {
         id: fullRep
-        Layout.preferredWidth: Math.max(300, imageContainer.width + 20)  // Minimum width of 300
-        Layout.preferredHeight: Math.max(300, imageContainer.height + 20)  // Minimum height of 300
-        Layout.minimumWidth: 300
+        Layout.preferredWidth: Math.max(330, imageContainer.width + 10)  // Minimum width of 300
+        Layout.preferredHeight: Math.max(330, imageContainer.height + 10)  // Minimum height of 300
+        Layout.minimumWidth: 330
         // Set minimum height to the content height
         Layout.minimumHeight: column.implicitHeight
 
@@ -224,9 +225,9 @@ PlasmoidItem {
             Rectangle {
                 id: imageContainer
                 Layout.alignment: Qt.AlignHCenter
-                Layout.preferredWidth: Math.min(fullRep.width - 20, fullRep.height - 160)  // Subtract space for other elements
+                Layout.preferredWidth: Math.min(fullRep.width - 10, fullRep.height - 160)  // Subtract space for other elements
                 Layout.preferredHeight: Layout.preferredWidth
-                Layout.topMargin: Kirigami.Units.largeSpacing
+                Layout.topMargin: 5
                 color: "transparent"
 
                 Image {
@@ -235,11 +236,65 @@ PlasmoidItem {
                     source: player.artUrl
                     fillMode: Image.PreserveAspectFit
                 }
+
+                Layout.bottomMargin: 12
             }
 
+            ScrollingText {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
+                // horizontalAlignment: Text.AlignHCenter
+
+                speed: plasmoid.configuration.textScrollingSpeed
+                font: Qt.font({
+                    // family: widget.boldTextFont.family,
+                    family: 'Spotify Mix',
+                    weight: Font.Bold,
+                    pixelSize: 22
+                })
+                maxWidth: imageContainer.width
+                text: player.title
+
+                // Top margin to add some space between the title and the artist
+                // Layout.topMargin: 7
+            }
+
+            ScrollingText {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
+                // horizontalAlignment: Text.AlignHCenter
+
+                speed: plasmoid.configuration.textScrollingSpeed
+                font: Qt.font({
+                    // family: widget.textFont.family,
+                    family: 'Spotify Mix',
+                    pixelSize: 16
+                })
+                maxWidth: imageContainer.width
+                text: player.artists
+                opacity: 0.6
+
+                // Top margin to add some space between the title and the artist
+                Layout.topMargin: -10
+                Layout.bottomMargin: 12
+            }
+
+            // VolumeBar {
+            //     Layout.preferredWidth: imageContainer.width
+            //     Layout.alignment: Qt.AlignHCenter
+
+            //     Layout.leftMargin: 40
+            //     Layout.rightMargin: 40
+            //     Layout.topMargin: 20
+            //     volume: player.volume
+            //     onChangeVolume: (player_endvol) => {
+            //         player.setVolume(vol)
+            //     }
+            // }
+
             TrackPositionSlider {
-                Layout.leftMargin: 10
-                Layout.rightMargin: 10
+                Layout.leftMargin: 12
+                Layout.rightMargin: 12
 
                 Layout.preferredWidth: imageContainer.width
                 Layout.alignment: Qt.AlignHCenter
@@ -256,78 +311,126 @@ PlasmoidItem {
                 }
             }
 
-            ScrollingText {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
-                // horizontalAlignment: Text.AlignHCenter
-
-                speed: plasmoid.configuration.textScrollingSpeed
-                font: Qt.font({
-                    family: widget.boldTextFont.family,
-                    weight: Font.Bold,
-                    pixelSize: 22
-                })
-                maxWidth: imageContainer.width
-                text: player.title
-
-                // Top margin to add some space between the title and the artist
-                Layout.topMargin: 15
-            }
-
-            ScrollingText {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
-                // horizontalAlignment: Text.AlignHCenter
-
-                speed: plasmoid.configuration.textScrollingSpeed
-                font: Qt.font({
-                    family: widget.textFont.family,
-                    pixelSize: 16
-                })
-                maxWidth: imageContainer.width
-                text: player.artists
-                opacity: 0.6
-
-                // Top margin to add some space between the title and the artist
-                Layout.topMargin: -5
-            }
-
-            VolumeBar {
-                Layout.preferredWidth: imageContainer.width
-                Layout.alignment: Qt.AlignHCenter
-
-                Layout.leftMargin: 40
-                Layout.rightMargin: 40
-                Layout.topMargin: 20
-                volume: player.volume
-                onChangeVolume: (player_endvol) => {
-                    player.setVolume(vol)
-                }
-            }
-
             Item {
-                Layout.preferredWidth: imageContainer.width
-                Layout.preferredHeight: row.implicitHeight
+                id: playerControlsContainer
+
+                // Layout.preferredWidth: imageContainer.width * 0.5
+                // Layout.preferredHeight: row.implicitHeight
+                // Layout.topMargin: 10
+                // // Layout.leftMargin: 30
+                // // Layout.rightMargin: 30
+                // Layout.bottomMargin: 70
+                // Layout.alignment: Qt.AlignHCenter
+
+                // Set a fixed width instead of relative width
+                Layout.preferredWidth: Kirigami.Units.gridUnit * 16 // Adjust this value as needed
+                Layout.preferredHeight: playerControls.implicitHeight
+                Layout.topMargin: 10
+                Layout.bottomMargin: 25
                 Layout.alignment: Qt.AlignHCenter
 
-                Layout.topMargin: 20
-                Layout.leftMargin: 10
-                Layout.rightMargin: 10
-                Layout.bottomMargin: 20
-                Layout.fillWidth: true
+
+
+                // RowLayout {
+                //     id: row
+
+                //     spacing: -300
+
+                //     anchors.fill: parent
+
+                //     CommandIcon {
+                //         enabled: player.canChangeShuffle
+                //         Layout.alignment: Qt.AlignHCenter
+                //         size: Kirigami.Units.iconSizes.medium - 6
+                //         source: "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/shuffle.svg"
+                //         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
+                //         active: player.shuffle === Mpris.ShuffleStatus.On
+                //     }
+
+                //     RowLayout {
+                //         id: playerControls
+                //         spacing: 25
+                //         Layout.alignment: Qt.AlignHCenter
+
+
+                //         CommandIcon {
+                //             enabled: player.canGoPrevious
+                //             Layout.alignment: Qt.AlignHCenter
+                //             size: Kirigami.Units.iconSizes.medium - 6
+                //             source: "player_prev"
+                //             onClicked: {
+                //                 player.previous()
+                //                 // Call forceUpdateScroll() from the ScrollingText.qml
+                //                 titleText.forceUpdateScroll()
+                //                 artistText.forceUpdateScroll()
+                //             }
+                //         }
+
+                //         CommandIcon {
+                //             enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
+                //             Layout.alignment: Qt.AlignHCenter
+                //             size: Kirigami.Units.iconSizes.large
+                //             source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/Pause.svg" : "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/Play.svg"
+                //             onClicked: {
+                //                 player.playPause()
+                //                 titleText.forceUpdateScroll()
+                //                 artistText.forceUpdateScroll()
+                //             }
+                //         }
+
+                //         CommandIcon {
+                //             enabled: player.canGoNext
+                //             Layout.alignment: Qt.AlignHCenter
+                //             size: Kirigami.Units.iconSizes.medium - 6
+                //             source: "player_next"
+                //             onClicked: {
+                //                 player.next()
+                //                 // Call forceUpdateScroll() from the ScrollingText.qml
+                //                 titleText.forceUpdateScroll()
+                //                 artistText.forceUpdateScroll()
+                //             }
+                //         }
+                //     }
+
+                //     CommandIcon {
+                //         enabled: player.canChangeLoopStatus
+                //         Layout.alignment: Qt.AlignHCenter
+                //         size: Kirigami.Units.iconSizes.medium - 6
+                //         source: player.loopStatus === Mpris.LoopStatus.Track ? "media-playlist-repeat-song" : "media-playlist-repeat"
+                //         active: player.loopStatus != Mpris.LoopStatus.None
+                //         onClicked: () => {
+                //             let status = Mpris.LoopStatus.None;
+                //             if (player.loopStatus == Mpris.LoopStatus.None)
+                //                 status = Mpris.LoopStatus.Track;
+                //             else if (player.loopStatus === Mpris.LoopStatus.Track)
+                //                 status = Mpris.LoopStatus.Playlist;
+                //             player.setLoopStatus(status);
+                //         }
+                //     }
+
+                // }
 
                 RowLayout {
-                    id: row
+                    id: playerControls
+                    spacing: 22
 
-                    spacing: -45
+                    // Layout.alignment: Qt.AlignHCenter
+                    // anchors.fill: parent
+                    // Layout.fillWidth: false
 
-                    anchors.fill: parent
+                    // Center the row within the container
+                    anchors.centerIn: parent
+                    // Don't fill the width to keep buttons centered
+                    width: implicitWidth
+
+
+
 
                     CommandIcon {
                         enabled: player.canChangeShuffle
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium
-                        source: "media-playlist-shuffle"
+                        size: Kirigami.Units.iconSizes.medium - 15
+                        source: "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/shuf.svg"
                         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
                         active: player.shuffle === Mpris.ShuffleStatus.On
                     }
@@ -335,7 +438,7 @@ PlasmoidItem {
                     CommandIcon {
                         enabled: player.canGoPrevious
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium
+                        size: Kirigami.Units.iconSizes.medium - 6
                         source: "player_prev"
                         onClicked: {
                             player.previous()
@@ -349,7 +452,8 @@ PlasmoidItem {
                         enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.large
-                        source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "currenttrack_pause" : "currenttrack_play"
+                        source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/Pause.svg" : "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/Play.svg"
+
                         onClicked: {
                             player.playPause()
                             titleText.forceUpdateScroll()
@@ -360,7 +464,7 @@ PlasmoidItem {
                     CommandIcon {
                         enabled: player.canGoNext
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium
+                        size: Kirigami.Units.iconSizes.medium - 6
                         source: "player_next"
                         onClicked: {
                             player.next()
@@ -371,21 +475,36 @@ PlasmoidItem {
                     }
 
                     CommandIcon {
+                        id: repeatButton
                         enabled: player.canChangeLoopStatus
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium
-                        source: player.loopStatus === Mpris.LoopStatus.Track ? "media-playlist-repeat-song" : "media-playlist-repeat"
-                        active: player.loopStatus != Mpris.LoopStatus.None
+                        size: Kirigami.Units.iconSizes.medium - 15
+
+                        // Choose icon based on loop status
+                        source: player.loopStatus === Mpris.LoopStatus.Track ?
+                            "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/repeat-1.svg" :
+                            player.loopStatus === Mpris.LoopStatus.None ? "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/rep_none.svg" : "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/rep.svg"
+
+
+                        // Default opacity is 0.4 for None, 0.8 for others
+                        property real baseOpacity: player.loopStatus === Mpris.LoopStatus.None ? 0.4 : 0.8
+
+                        // Use the base opacity unless hovered
+                        opacity: hovered ? 1.0 : baseOpacity
+
+                        Behavior on opacity {
+                            NumberAnimation { duration: 150 }
+                        }
+
                         onClicked: () => {
                             let status = Mpris.LoopStatus.None;
-                            if (player.loopStatus == Mpris.LoopStatus.None)
+                            if (player.loopStatus === Mpris.LoopStatus.None)
                                 status = Mpris.LoopStatus.Track;
                             else if (player.loopStatus === Mpris.LoopStatus.Track)
                                 status = Mpris.LoopStatus.Playlist;
                             player.setLoopStatus(status);
                         }
                     }
-
                 }
 
             }

@@ -34,13 +34,14 @@ Item {
             height: container.size
             Layout.fillWidth: true
             id: full
-            color: Kirigami.Theme.disabledTextColor
+            // white with 10% opacity
+            color: Qt.rgba(1, 1, 1, 0.06)
 
             Rectangle {
                 Layout.alignment: Qt.AlignLeft
                 height: container.size
                 width: full.width * container.volume
-                color: Kirigami.Theme.highlightColor
+                color: Qt.rgba(1, 1, 1, 0.25)
             }
         }
         CommandIcon {

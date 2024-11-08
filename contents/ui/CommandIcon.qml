@@ -26,4 +26,17 @@ Item {
             onClicked: container.clicked()
         }
     }
+
+    opacity: mouseArea.containsMouse ? 1.0 : 0.7
+
+    Behavior on opacity {
+        NumberAnimation { duration: 150 }  // Smooth transition
+    }
+
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: true  // Enable hover detection
+        onClicked: parent.clicked()  // Forward the click signal
+    }
 }
