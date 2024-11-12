@@ -6,11 +6,14 @@ import org.kde.plasma.plasmoid
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.private.mpris as Mpris
+import 'code/color-thief.min.js' as ColorThief
 
 PlasmoidItem {
     id: widget
 
     Plasmoid.status: PlasmaCore.Types.HiddenStatus
+
+    property color dominantColor: "#A8FFFFFF"  // Default color
 
     readonly property font textFont: {
         return plasmoid.configuration.useCustomFont ? plasmoid.configuration.customFont : Kirigami.Theme.defaultFont
@@ -196,6 +199,65 @@ PlasmoidItem {
         }
     }
 
+    // Create a hidden canvas for color extraction
+    Canvas {
+        id: hiddenCanvas
+        visible: false
+        width: 1
+        height: 1
+
+        // Create a hidden image for loading
+        Image {
+            id: hiddenImage
+            visible: false
+            width: 1
+            height: 1
+
+            onStatusChanged: {
+                if (status === Image.Ready) {
+                    // Once image is loaded, draw it to canvas and extract color
+                    hiddenCanvas.requestPaint();
+                }
+            }
+        }
+
+        onPaint: {
+            if (hiddenImage.status === Image.Ready) {
+                var ctx = getContext('2d');
+                ctx.drawImage(hiddenImage, 0, 0);
+
+                // Get image data and extract dominant color
+                var imageData = ctx.getImageData(0, 0, 1, 1);
+                var r = imageData.data[0];
+                var g = imageData.data[1];
+                var b = imageData.data[2];
+
+                // Update dominant color
+                widget.dominantColor = Qt.rgba(r/255, g/255, b/255, 1.0);
+                console.log("Extracted color:", widget.dominantColor);
+            }
+        }
+    }
+
+    // Add a function to extract dominant color
+    function extractDominantColor(imageUrl) {
+        if (!imageUrl) return;
+
+        var img = new Image();
+        img.crossOrigin = "Anonymous";
+
+        img.onLoad = function() {
+            var colorThief = new ColorThief.ColorThief();
+            var color = colorThief.getColor(img);
+            if (color) {
+                // Convert RGB array to color string
+                widget.dominantColor = Qt.rgba(color[0]/255, color[1]/255, color[2]/255, 1.0);
+            }
+        }
+
+        img.source = imageUrl;
+    }
+
     fullRepresentation: Item {
         id: fullRep
         Layout.preferredWidth: Math.max(330, imageContainer.width + 10)  // Minimum width of 300
@@ -274,6 +336,19 @@ PlasmoidItem {
                     source: player.artUrl
                     fillMode: Image.PreserveAspectFit
 
+                    // onSourceChanged: {
+                    //     // Extract dominant color when image source changes
+                    //     widget.extractDominantColor(source);
+                    // }
+
+                    onSourceChanged: {
+                        if (source) {
+                            // Update hidden image source when album art changes
+                            hiddenImage.source = source;
+                            console.log("Album art source changed:", source);
+                        }
+                    }
+
                     // Add layer to enable clipping with rounded corners
                     layer.enabled: true
                     layer.effect: OpacityMask {
@@ -308,21 +383,26 @@ PlasmoidItem {
             ScrollingText {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
-                // horizontalAlignment: Text.AlignHCenter
 
                 speed: plasmoid.configuration.textScrollingSpeed
                 font: Qt.font({
-                    // family: widget.textFont.family,
                     family: 'Spotify Mix',
                     pixelSize: 16,
                 })
                 maxWidth: imageContainer.width
                 text: player.artists
-                opacity: 0.6
+                opacity: 0.8
+                textColor: widget.dominantColor  // Use the extracted color
 
-                // Top margin to add some space between the title and the artist
                 Layout.topMargin: -10
                 Layout.bottomMargin: 12
+
+                Connections {
+                    target: widget
+                    function onDominantColorChanged() {
+                        console.log("Dominant color updated in ScrollingText:", widget.dominantColor);
+                    }
+                }
             }
 
             // VolumeBar {

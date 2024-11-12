@@ -13,6 +13,8 @@ Item {
     }
 
     property int overflowBehaviour: ScrollingText.OverflowBehaviour.AlwaysScroll
+    property color textColor: "#C4FFFFFF"  // Add property for text color
+
 
     property string text: ""
     readonly property string spacing: "     "
@@ -60,6 +62,11 @@ Item {
         id: textMetrics
         font: label.font
         text: root.text
+    }
+
+    // Add smooth color transition
+    Behavior on textColor {
+        ColorAnimation { duration: 300 }
     }
 
     // PlasmaComponents3.Label {
@@ -124,6 +131,7 @@ Item {
             // horizontalAlignment: root.horizontalAlignment
             width: Math.max(implicitWidth, root.width)
             elide: Text.ElideNone
+            color: root.textColor  // Apply the text color
         }
 
         PlasmaComponents3.Label {
@@ -135,6 +143,7 @@ Item {
             height: label.height
             text: root.spacing + root.text
             font: label.font
+            color: root.textColor  // Apply the text color to the repeat label as well
         }
     }
 
