@@ -62,7 +62,7 @@ PlasmoidItem {
                 imageRadius: plasmoid.configuration.albumCoverRadius
                 type: plasmoid.configuration.useAlbumCoverAsPanelIcon ? "image": "icon"
                 Layout.leftMargin: Kirigami.Units.smallSpacing * 2
-                Layout.rightMargin: 3
+                Layout.rightMargin: 2
             }
 
             // Separate Title and Artist
@@ -253,7 +253,19 @@ PlasmoidItem {
                 color: "transparent"
 
                 // Add radius to the Rectangle
-                radius: 4  // Adjust this value to control corner roundness
+                radius: 3  // Adjust this value to control corner roundness
+
+                layer.enabled: true
+                layer.effect: DropShadow {
+                    transparentBorder: true
+                    horizontalOffset: 0
+                    verticalOffset: 6
+                    radius: 30
+                    samples: 50
+                    color: Qt.rgba(0, 0, 0, 0.35)  // Semi-transparent black
+                    spread: 0.03
+                    cached: true
+                }
 
                 Image {
                     id: albumArt
@@ -302,7 +314,7 @@ PlasmoidItem {
                 font: Qt.font({
                     // family: widget.textFont.family,
                     family: 'Spotify Mix',
-                    pixelSize: 16
+                    pixelSize: 16,
                 })
                 maxWidth: imageContainer.width
                 text: player.artists
@@ -463,8 +475,8 @@ PlasmoidItem {
                     CommandIcon {
                         enabled: player.canChangeShuffle
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium - 15
-                        source: "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/shuf.svg"
+                        size: Kirigami.Units.iconSizes.medium - 12
+                        source: player.shuffle === Mpris.ShuffleStatus.On ? "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/arrows-shuffle.svg" : "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/arrows-right.svg"
                         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
                         active: player.shuffle === Mpris.ShuffleStatus.On
                     }
@@ -473,7 +485,8 @@ PlasmoidItem {
                         enabled: player.canGoPrevious
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.medium - 6
-                        source: "player_prev"
+                        // source: "player_prev"
+                        source: "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/player-track-prev.svg"
                         onClicked: {
                             player.previous()
                             // Call forceUpdateScroll() from the ScrollingText.qml
@@ -499,7 +512,8 @@ PlasmoidItem {
                         enabled: player.canGoNext
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.medium - 6
-                        source: "player_next"
+                        // source: "player_next"
+                        source: "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/player-track-next.svg"
                         onClicked: {
                             player.next()
                             // Call forceUpdateScroll() from the ScrollingText.qml
@@ -512,19 +526,19 @@ PlasmoidItem {
                         id: repeatButton
                         enabled: player.canChangeLoopStatus
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium - 15
+                        size: Kirigami.Units.iconSizes.medium - 12
 
                         // Choose icon based on loop status
                         source: player.loopStatus === Mpris.LoopStatus.Track ?
-                            "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/repeat-1.svg" :
-                            player.loopStatus === Mpris.LoopStatus.None ? "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/rep_none.svg" : "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/rep.svg"
+                            "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/repeat-once.svg" :
+                            player.loopStatus === Mpris.LoopStatus.None ? "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/rep-off.svg" : "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/rep_all.svg"
 
 
                         // Default opacity is 0.4 for None, 0.8 for others
-                        property real baseOpacity: player.loopStatus === Mpris.LoopStatus.None ? 0.4 : 0.8
+                        // property real baseOpacity: player.loopStatus === Mpris.LoopStatus.None ? 0.4 : 0.8
 
                         // Use the base opacity unless hovered
-                        opacity: hovered ? 1.0 : baseOpacity
+                        opacity: hovered ? 1.0 : 0.7
 
                         Behavior on opacity {
                             NumberAnimation { duration: 150 }

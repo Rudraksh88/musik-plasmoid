@@ -30,7 +30,7 @@ Item {
     opacity: mouseArea.containsMouse ? 1.0 : 0.7
 
     // Scale the icon when hovered
-    scale: mouseArea.containsMouse ? 1.07 : 1.0
+    // scale: mouseArea.containsMouse ? 1.03 : 1.0
 
     Behavior on scale {
         NumberAnimation { duration: 150 }  // Smooth transition
