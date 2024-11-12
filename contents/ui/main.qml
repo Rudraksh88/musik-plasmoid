@@ -199,45 +199,45 @@ PlasmoidItem {
         }
     }
 
-    // Create a hidden canvas for color extraction
-    Canvas {
-        id: hiddenCanvas
-        visible: false
-        width: 1
-        height: 1
+    // // Create a hidden canvas for color extraction
+    // Canvas {
+    //     id: hiddenCanvas
+    //     visible: false
+    //     width: 1
+    //     height: 1
 
-        // Create a hidden image for loading
-        Image {
-            id: hiddenImage
-            visible: false
-            width: 1
-            height: 1
+    //     // Create a hidden image for loading
+    //     Image {
+    //         id: hiddenImage
+    //         visible: false
+    //         width: 1
+    //         height: 1
 
-            onStatusChanged: {
-                if (status === Image.Ready) {
-                    // Once image is loaded, draw it to canvas and extract color
-                    hiddenCanvas.requestPaint();
-                }
-            }
-        }
+    //         onStatusChanged: {
+    //             if (status === Image.Ready) {
+    //                 // Once image is loaded, draw it to canvas and extract color
+    //                 hiddenCanvas.requestPaint();
+    //             }
+    //         }
+    //     }
 
-        onPaint: {
-            if (hiddenImage.status === Image.Ready) {
-                var ctx = getContext('2d');
-                ctx.drawImage(hiddenImage, 0, 0);
+    //     onPaint: {
+    //         if (hiddenImage.status === Image.Ready) {
+    //             var ctx = getContext('2d');
+    //             ctx.drawImage(hiddenImage, 0, 0);
 
-                // Get image data and extract dominant color
-                var imageData = ctx.getImageData(0, 0, 1, 1);
-                var r = imageData.data[0];
-                var g = imageData.data[1];
-                var b = imageData.data[2];
+    //             // Get image data and extract dominant color
+    //             var imageData = ctx.getImageData(0, 0, 1, 1);
+    //             var r = imageData.data[0];
+    //             var g = imageData.data[1];
+    //             var b = imageData.data[2];
 
-                // Update dominant color
-                widget.dominantColor = Qt.rgba(r/255, g/255, b/255, 1.0);
-                console.log("Extracted color:", widget.dominantColor);
-            }
-        }
-    }
+    //             // Update dominant color
+    //             widget.dominantColor = Qt.rgba(r/255, g/255, b/255, 1.0);
+    //             console.log("Extracted color:", widget.dominantColor);
+    //         }
+    //     }
+    // }
 
     // Add a function to extract dominant color
     function extractDominantColor(imageUrl) {
@@ -256,6 +256,134 @@ PlasmoidItem {
         }
 
         img.source = imageUrl;
+    }
+
+    // Convert RGB to HSL
+    function rgbToHsl(r, g, b) {
+        r /= 255;
+        g /= 255;
+        b /= 255;
+
+        var max = Math.max(r, g, b);
+        var min = Math.min(r, g, b);
+        var h, s, l = (max + min) / 2;
+
+        if (max === min) {
+            h = s = 0;
+        } else {
+            var d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+
+        return [h * 360, s * 100, l * 100];
+    }
+
+    // Convert HSL to RGB
+    function hslToRgb(h, s, l) {
+        h /= 360;
+        s /= 100;
+        l /= 100;
+
+        var r, g, b;
+
+        function hue2rgb(p, q, t) {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1/6) return p + (q - p) * 6 * t;
+            if (t < 1/2) return q;
+            if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+            return p;
+        }
+
+        if (s === 0) {
+            r = g = b = l;
+        } else {
+            var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            var p = 2 * l - q;
+            r = hue2rgb(p, q, h + 1/3);
+            g = hue2rgb(p, q, h);
+            b = hue2rgb(p, q, h - 1/3);
+        }
+
+        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+    }
+
+    // Create a hidden canvas for color extraction
+    Canvas {
+        id: hiddenCanvas
+        visible: false
+        width: 50
+        height: 50
+
+        Image {
+            id: hiddenImage
+            visible: false
+            width: parent.width
+            height: parent.height
+
+            onStatusChanged: {
+                if (status === Image.Ready) {
+                    hiddenCanvas.requestPaint();
+                }
+            }
+        }
+
+        onPaint: {
+            if (hiddenImage.status === Image.Ready) {
+                var ctx = getContext('2d');
+                ctx.drawImage(hiddenImage, 0, 0, width, height);
+
+                // Get image data
+                var imageData = ctx.getImageData(0, 0, width, height);
+                var data = imageData.data;
+
+                // Calculate average color
+                var r = 0, g = 0, b = 0;
+                var count = 0;
+
+                for(var i = 0; i < data.length; i += 4) {
+                    var alpha = data[i + 3];
+                    if (alpha >= 125) {  // Only consider non-transparent pixels
+                        r += data[i];
+                        g += data[i + 1];
+                        b += data[i + 2];
+                        count++;
+                    }
+                }
+
+                if (count > 0) {
+                    // Get average color
+                    r = Math.round(r / count);
+                    g = Math.round(g / count);
+                    b = Math.round(b / count);
+
+                    // Convert to HSL, adjust saturation and lightness, then back to RGB
+                    var hsl = rgbToHsl(r, g, b);
+                    var adjustedRgb = hslToRgb(
+                        hsl[0],    // Keep original hue
+                        80,       // Set saturation to exactly 100%
+                        70         // Set lightness to exactly 60%
+                    );
+
+                    // Update the dominant color
+                    widget.dominantColor = Qt.rgba(
+                        adjustedRgb[0]/255,
+                        adjustedRgb[1]/255,
+                        adjustedRgb[2]/255,
+                        1.0
+                    );
+
+                    console.log("Average color HSL:", hsl[0], 100, 60);
+                }
+            }
+        }
     }
 
     fullRepresentation: Item {
@@ -343,9 +471,7 @@ PlasmoidItem {
 
                     onSourceChanged: {
                         if (source) {
-                            // Update hidden image source when album art changes
                             hiddenImage.source = source;
-                            console.log("Album art source changed:", source);
                         }
                     }
 

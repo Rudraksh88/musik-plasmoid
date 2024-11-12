@@ -13,7 +13,7 @@ Item {
     }
 
     property int overflowBehaviour: ScrollingText.OverflowBehaviour.AlwaysScroll
-    property color textColor: "#C4FFFFFF"  // Add property for text color
+    property color textColor: "#A8FFFFFF"  // Add property for text color
 
 
     property string text: ""
