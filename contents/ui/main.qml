@@ -128,36 +128,6 @@ PlasmoidItem {
                 Layout.rightMargin: -5 // Some spacing to the right of the text
             }
 
-            // PlasmaComponents3.ToolButton {
-            //     visible: plasmoid.configuration.commandsInPanel
-            //     enabled: player.canGoPrevious
-            //     icon.name: "gtk-go-forward-rtl"
-            //     implicitWidth: compact.controlsSize
-            //     implicitHeight: compact.controlsSize
-            //     onClicked: player.previous()
-            // }
-
-            // PlasmaComponents3.ToolButton {
-            //     visible: plasmoid.configuration.commandsInPanel
-            //     enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
-            //     implicitWidth: compact.controlsSize
-            //     implicitHeight: compact.controlsSize
-            //     icon.name: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "currenttrack_pause" : "media-playback-start-symbolic"
-            //     onClicked: player.playPause()
-            // }
-
-            // PlasmaComponents3.ToolButton {
-            //     visible: plasmoid.configuration.commandsInPanel
-            //     enabled: player.canGoNext
-            //     implicitWidth: compact.controlsSize
-            //     implicitHeight: compact.controlsSize
-            //     icon.name: "gtk-go-forward-ltr"
-            //     onClicked: player.next()
-
-            //     // Reduce left margin to make the button closer to the previous button
-            //     // Layout.leftMargin: -2
-            //     Layout.rightMargin: 4
-            // }
 
             // Move the tool buttons to a row grid layout
             RowLayout {
@@ -199,120 +169,92 @@ PlasmoidItem {
         }
     }
 
-    // // Create a hidden canvas for color extraction
-    // Canvas {
-    //     id: hiddenCanvas
-    //     visible: false
-    //     width: 1
-    //     height: 1
 
-    //     // Create a hidden image for loading
-    //     Image {
-    //         id: hiddenImage
-    //         visible: false
-    //         width: 1
-    //         height: 1
-
-    //         onStatusChanged: {
-    //             if (status === Image.Ready) {
-    //                 // Once image is loaded, draw it to canvas and extract color
-    //                 hiddenCanvas.requestPaint();
-    //             }
-    //         }
-    //     }
-
-    //     onPaint: {
-    //         if (hiddenImage.status === Image.Ready) {
-    //             var ctx = getContext('2d');
-    //             ctx.drawImage(hiddenImage, 0, 0);
-
-    //             // Get image data and extract dominant color
-    //             var imageData = ctx.getImageData(0, 0, 1, 1);
-    //             var r = imageData.data[0];
-    //             var g = imageData.data[1];
-    //             var b = imageData.data[2];
-
-    //             // Update dominant color
-    //             widget.dominantColor = Qt.rgba(r/255, g/255, b/255, 1.0);
-    //             console.log("Extracted color:", widget.dominantColor);
-    //         }
-    //     }
-    // }
-
-    // Add a function to extract dominant color
-    function extractDominantColor(imageUrl) {
-        if (!imageUrl) return;
-
-        var img = new Image();
-        img.crossOrigin = "Anonymous";
-
-        img.onLoad = function() {
-            var colorThief = new ColorThief.ColorThief();
-            var color = colorThief.getColor(img);
-            if (color) {
-                // Convert RGB array to color string
-                widget.dominantColor = Qt.rgba(color[0]/255, color[1]/255, color[2]/255, 1.0);
-            }
+    // Linear sRGB to OKLCH conversion functions
+    function linearize(value) {
+        if (value <= 0.04045) {
+            return value / 12.92;
         }
-
-        img.source = imageUrl;
+        return Math.pow((value + 0.055) / 1.055, 2.4);
     }
 
-    // Convert RGB to HSL
-    function rgbToHsl(r, g, b) {
+    function delinearize(value) {
+        if (value <= 0.0031308) {
+            return value * 12.92;
+        }
+        return 1.055 * Math.pow(value, 1/2.4) - 0.055;
+    }
+
+    function rgbToOKLCH(r, g, b) {
+        // Convert to 0-1 range
         r /= 255;
         g /= 255;
         b /= 255;
 
-        var max = Math.max(r, g, b);
-        var min = Math.min(r, g, b);
-        var h, s, l = (max + min) / 2;
+        // Convert to linear RGB
+        r = linearize(r);
+        g = linearize(g);
+        b = linearize(b);
 
-        if (max === min) {
-            h = s = 0;
-        } else {
-            var d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        // Convert to OKLAB
+        let l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
+        let m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
+        let s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
 
-            switch (max) {
-                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                case g: h = (b - r) / d + 2; break;
-                case b: h = (r - g) / d + 4; break;
-            }
-            h /= 6;
-        }
+        l = Math.pow(l, 1/3);
+        m = Math.pow(m, 1/3);
+        s = Math.pow(s, 1/3);
 
-        return [h * 360, s * 100, l * 100];
+        // Convert to OKLab
+        let L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s;
+        let a = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
+        let b_ = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
+
+        // Convert to OKLCH
+        let C = Math.sqrt(a * a + b_ * b_);
+        let h = Math.atan2(b_, a) * 180 / Math.PI;
+        if (h < 0) h += 360;
+
+        return {
+            l: L,        // Lightness (0 to 1)
+            c: C,        // Chroma (0 to ~0.4)
+            h: h         // Hue (0 to 360)
+        };
     }
 
-    // Convert HSL to RGB
-    function hslToRgb(h, s, l) {
-        h /= 360;
-        s /= 100;
-        l /= 100;
+    function oklchToRGB(L, C, h) {
+        // Convert hue to radians
+        h = h * Math.PI / 180;
 
-        var r, g, b;
+        // Convert OKLCH to OKLab
+        let a = C * Math.cos(h);
+        let b_ = C * Math.sin(h);
 
-        function hue2rgb(p, q, t) {
-            if (t < 0) t += 1;
-            if (t > 1) t -= 1;
-            if (t < 1/6) return p + (q - p) * 6 * t;
-            if (t < 1/2) return q;
-            if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-            return p;
-        }
+        // Convert to LMS
+        let l = L + 0.3963377774 * a + 0.2158037573 * b_;
+        let m = L - 0.1055613458 * a - 0.0638541728 * b_;
+        let s = L - 0.0894841775 * a - 1.2914855480 * b_;
 
-        if (s === 0) {
-            r = g = b = l;
-        } else {
-            var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-            var p = 2 * l - q;
-            r = hue2rgb(p, q, h + 1/3);
-            g = hue2rgb(p, q, h);
-            b = hue2rgb(p, q, h - 1/3);
-        }
+        l = l * l * l;
+        m = m * m * m;
+        s = s * s * s;
 
-        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        // Convert to linear RGB
+        let r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+        let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+        let b = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+
+        // Delinearize and convert to 0-255 range
+        r = delinearize(r) * 255;
+        g = delinearize(g) * 255;
+        b = delinearize(b) * 255;
+
+        // Clamp values
+        r = Math.max(0, Math.min(255, Math.round(r)));
+        g = Math.max(0, Math.min(255, Math.round(g)));
+        b = Math.max(0, Math.min(255, Math.round(b)));
+
+        return [r, g, b];
     }
 
     // Create a hidden canvas for color extraction
@@ -344,13 +286,12 @@ PlasmoidItem {
                 var imageData = ctx.getImageData(0, 0, width, height);
                 var data = imageData.data;
 
-                // Calculate average color
                 var r = 0, g = 0, b = 0;
                 var count = 0;
 
                 for(var i = 0; i < data.length; i += 4) {
                     var alpha = data[i + 3];
-                    if (alpha >= 125) {  // Only consider non-transparent pixels
+                    if (alpha >= 125) {
                         r += data[i];
                         g += data[i + 1];
                         b += data[i + 2];
@@ -359,20 +300,48 @@ PlasmoidItem {
                 }
 
                 if (count > 0) {
-                    // Get average color
                     r = Math.round(r / count);
                     g = Math.round(g / count);
                     b = Math.round(b / count);
 
-                    // Convert to HSL, adjust saturation and lightness, then back to RGB
-                    var hsl = rgbToHsl(r, g, b);
-                    var adjustedRgb = hslToRgb(
-                        hsl[0],    // Keep original hue
-                        80,       // Set saturation to exactly 100%
-                        70         // Set lightness to exactly 60%
+                    var oklch = rgbToOKLCH(r, g, b);
+
+                    // Adaptive lightness adjustment
+                    var targetL = 0.68; // Target lightness
+                    var lBoost = Math.max(1, targetL / oklch.l);
+                    var newL = Math.min(0.85, oklch.l * lBoost);
+
+                    // Adaptive chroma adjustment
+                    var minChroma = 0.1;  // Minimum desired chroma
+                    var maxChroma = 0.32;  // Maximum allowed chroma
+                    var targetChroma = 0.18; // Target chroma for dull colors
+
+                    var chromaBoost;
+                    if (oklch.c < minChroma) {
+                        // Aggressive boost for dull colors
+                        chromaBoost = targetChroma / oklch.c;
+                    } else {
+                        // Gentle boost for already-vibrant colors
+                        chromaBoost = 1 + Math.max(0, (targetChroma - oklch.c) / targetChroma);
+                    }
+
+                    var newC = Math.min(maxChroma, oklch.c * chromaBoost);
+
+                    // Additional hue-specific adjustments
+                    var hueAdjustment = 1;
+                    // Boost yellows and greens a bit more as they often appear dull
+                    if ((oklch.h >= 60 && oklch.h <= 180)) {
+                        hueAdjustment = 1.2;
+                    }
+                    newC *= hueAdjustment;
+
+                    // Apply the adjustments
+                    var adjustedRgb = oklchToRGB(
+                        newL,
+                        Math.min(maxChroma, newC),
+                        oklch.h
                     );
 
-                    // Update the dominant color
                     widget.dominantColor = Qt.rgba(
                         adjustedRgb[0]/255,
                         adjustedRgb[1]/255,
@@ -380,7 +349,8 @@ PlasmoidItem {
                         1.0
                     );
 
-                    console.log("Average color HSL:", hsl[0], 100, 60);
+                    console.log("Original OKLCH:", oklch.l, oklch.c, oklch.h);
+                    console.log("Adjusted OKLCH:", newL, newC, oklch.h);
                 }
             }
         }
@@ -415,23 +385,6 @@ PlasmoidItem {
             //     Layout.bottomMargin: 20
             // }
 
-            // Rectangle {
-            //     id: imageContainer
-            //     Layout.alignment: Qt.AlignHCenter
-            //     Layout.preferredWidth: Math.min(fullRep.width - 10, fullRep.height - 160)  // Subtract space for other elements
-            //     Layout.preferredHeight: Layout.preferredWidth
-            //     Layout.topMargin: 5
-            //     color: "transparent"
-
-            //     Image {
-            //         anchors.fill: parent
-            //         visible: player.artUrl
-            //         source: player.artUrl
-            //         fillMode: Image.PreserveAspectFit
-            //     }
-
-            //     Layout.bottomMargin: 12
-            // }
 
             Rectangle {
                 id: imageContainer
@@ -531,18 +484,6 @@ PlasmoidItem {
                 }
             }
 
-            // VolumeBar {
-            //     Layout.preferredWidth: imageContainer.width
-            //     Layout.alignment: Qt.AlignHCenter
-
-            //     Layout.leftMargin: 40
-            //     Layout.rightMargin: 40
-            //     Layout.topMargin: 20
-            //     volume: player.volume
-            //     onChangeVolume: (player_endvol) => {
-            //         player.setVolume(vol)
-            //     }
-            // }
 
             TrackPositionSlider {
                 Layout.leftMargin: 12
@@ -566,14 +507,6 @@ PlasmoidItem {
             Item {
                 id: playerControlsContainer
 
-                // Layout.preferredWidth: imageContainer.width * 0.5
-                // Layout.preferredHeight: row.implicitHeight
-                // Layout.topMargin: 10
-                // // Layout.leftMargin: 30
-                // // Layout.rightMargin: 30
-                // Layout.bottomMargin: 70
-                // Layout.alignment: Qt.AlignHCenter
-
                 // Set a fixed width instead of relative width
                 Layout.preferredWidth: Kirigami.Units.gridUnit * 16 // Adjust this value as needed
                 Layout.preferredHeight: playerControls.implicitHeight
@@ -581,86 +514,6 @@ PlasmoidItem {
                 Layout.bottomMargin: 25
                 Layout.alignment: Qt.AlignHCenter
 
-
-
-                // RowLayout {
-                //     id: row
-
-                //     spacing: -300
-
-                //     anchors.fill: parent
-
-                //     CommandIcon {
-                //         enabled: player.canChangeShuffle
-                //         Layout.alignment: Qt.AlignHCenter
-                //         size: Kirigami.Units.iconSizes.medium - 6
-                //         source: "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/shuffle.svg"
-                //         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
-                //         active: player.shuffle === Mpris.ShuffleStatus.On
-                //     }
-
-                //     RowLayout {
-                //         id: playerControls
-                //         spacing: 25
-                //         Layout.alignment: Qt.AlignHCenter
-
-
-                //         CommandIcon {
-                //             enabled: player.canGoPrevious
-                //             Layout.alignment: Qt.AlignHCenter
-                //             size: Kirigami.Units.iconSizes.medium - 6
-                //             source: "player_prev"
-                //             onClicked: {
-                //                 player.previous()
-                //                 // Call forceUpdateScroll() from the ScrollingText.qml
-                //                 titleText.forceUpdateScroll()
-                //                 artistText.forceUpdateScroll()
-                //             }
-                //         }
-
-                //         CommandIcon {
-                //             enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
-                //             Layout.alignment: Qt.AlignHCenter
-                //             size: Kirigami.Units.iconSizes.large
-                //             source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/Pause.svg" : "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/Play.svg"
-                //             onClicked: {
-                //                 player.playPause()
-                //                 titleText.forceUpdateScroll()
-                //                 artistText.forceUpdateScroll()
-                //             }
-                //         }
-
-                //         CommandIcon {
-                //             enabled: player.canGoNext
-                //             Layout.alignment: Qt.AlignHCenter
-                //             size: Kirigami.Units.iconSizes.medium - 6
-                //             source: "player_next"
-                //             onClicked: {
-                //                 player.next()
-                //                 // Call forceUpdateScroll() from the ScrollingText.qml
-                //                 titleText.forceUpdateScroll()
-                //                 artistText.forceUpdateScroll()
-                //             }
-                //         }
-                //     }
-
-                //     CommandIcon {
-                //         enabled: player.canChangeLoopStatus
-                //         Layout.alignment: Qt.AlignHCenter
-                //         size: Kirigami.Units.iconSizes.medium - 6
-                //         source: player.loopStatus === Mpris.LoopStatus.Track ? "media-playlist-repeat-song" : "media-playlist-repeat"
-                //         active: player.loopStatus != Mpris.LoopStatus.None
-                //         onClicked: () => {
-                //             let status = Mpris.LoopStatus.None;
-                //             if (player.loopStatus == Mpris.LoopStatus.None)
-                //                 status = Mpris.LoopStatus.Track;
-                //             else if (player.loopStatus === Mpris.LoopStatus.Track)
-                //                 status = Mpris.LoopStatus.Playlist;
-                //             player.setLoopStatus(status);
-                //         }
-                //     }
-
-                // }
 
                 RowLayout {
                     id: playerControls
