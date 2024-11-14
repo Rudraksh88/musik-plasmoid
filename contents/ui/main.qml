@@ -257,12 +257,72 @@ PlasmoidItem {
         return [r, g, b];
     }
 
-    // Create a hidden canvas for color extraction
+    function isEffectivelyGray(oklch) {
+        const chromaThreshold = 0.03;
+        return oklch.c <= chromaThreshold;
+    }
+
+    // Get the most dominant color from image data
+    function getDominantColor(imageData) {
+        const colorMap = new Map(); // Store color frequencies
+        const data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] < 125) continue; // Skip transparent pixels
+
+            // Quantize colors to reduce the number of unique colors
+            const r = Math.round(data[i] / 8) * 8;
+            const g = Math.round(data[i + 1] / 8) * 8;
+            const b = Math.round(data[i + 2] / 8) * 8;
+
+            const key = `${r},${g},${b}`;
+            colorMap.set(key, (colorMap.get(key) || 0) + 1);
+        }
+
+        // Find the most frequent color
+        let maxCount = 0;
+        let dominantColor = null;
+
+        for (const [color, count] of colorMap) {
+            if (count > maxCount) {
+                maxCount = count;
+                dominantColor = color.split(',').map(Number);
+            }
+        }
+
+        return dominantColor; // Returns [r, g, b]
+    }
+
+    // Check if image is predominantly gray
+    function isImageMostlyGray(imageData) {
+        const data = imageData.data;
+        let grayCount = 0;
+        let totalPixels = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] < 125) continue; // Skip transparent pixels
+
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+
+            // Check if pixel is close to gray
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            if ((max - min) <= 20) { // Tolerance for considering a pixel gray
+                grayCount++;
+            }
+            totalPixels++;
+        }
+
+        return (grayCount / totalPixels) > 0.7; // Consider gray if 70% pixels are gray
+    }
+
     Canvas {
         id: hiddenCanvas
         visible: false
-        width: 50
-        height: 50
+        width: 300
+        height: 300
 
         Image {
             id: hiddenImage
@@ -284,14 +344,14 @@ PlasmoidItem {
 
                 // Get image data
                 var imageData = ctx.getImageData(0, 0, width, height);
-                var data = imageData.data;
 
+                // Calculate average color first
                 var r = 0, g = 0, b = 0;
                 var count = 0;
+                var data = imageData.data;
 
                 for(var i = 0; i < data.length; i += 4) {
-                    var alpha = data[i + 3];
-                    if (alpha >= 125) {
+                    if (data[i + 3] >= 125) {
                         r += data[i];
                         g += data[i + 1];
                         b += data[i + 2];
@@ -304,43 +364,41 @@ PlasmoidItem {
                     g = Math.round(g / count);
                     b = Math.round(b / count);
 
-                    var oklch = rgbToOKLCH(r, g, b);
+                    var avgOklch = rgbToOKLCH(r, g, b);
 
-                    // Adaptive lightness adjustment
-                    var targetL = 0.68; // Target lightness
-                    var lBoost = Math.max(1, targetL / oklch.l);
-                    var newL = Math.min(0.85, oklch.l * lBoost);
-
-                    // Adaptive chroma adjustment
-                    var minChroma = 0.1;  // Minimum desired chroma
-                    var maxChroma = 0.32;  // Maximum allowed chroma
-                    var targetChroma = 0.18; // Target chroma for dull colors
-
-                    var chromaBoost;
-                    if (oklch.c < minChroma) {
-                        // Aggressive boost for dull colors
-                        chromaBoost = targetChroma / oklch.c;
-                    } else {
-                        // Gentle boost for already-vibrant colors
-                        chromaBoost = 1 + Math.max(0, (targetChroma - oklch.c) / targetChroma);
+                    // Decision tree based on average color's chroma
+                    if (avgOklch.c > 0.09) { // More than 30% chroma
+                        // Use OKLCH chroma technique
+                        var adjustedRgb = oklchToRGB(
+                            0.75,           // 75% lightness
+                            Math.min(0.3, avgOklch.c * 1.2), // Boost chroma but cap it
+                            avgOklch.h      // Keep original hue
+                        );
                     }
+                    else if (avgOklch.c > 0.06) { // 30-49% chroma
+                        if (isImageMostlyGray(imageData)) {
+                            // Use 60% white
+                            widget.dominantColor = Qt.rgba(0.6, 0.6, 0.6, 1.0);
+                            return;
+                        }
+                        // Get and enhance dominant color
+                        var dominantRgb = getDominantColor(imageData);
+                        var dominantOklch = rgbToOKLCH(dominantRgb[0], dominantRgb[1], dominantRgb[2]);
 
-                    var newC = Math.min(maxChroma, oklch.c * chromaBoost);
-
-                    // Additional hue-specific adjustments
-                    var hueAdjustment = 1;
-                    // Boost yellows and greens a bit more as they often appear dull
-                    if ((oklch.h >= 60 && oklch.h <= 180)) {
-                        hueAdjustment = 1.2;
+                        adjustedRgb = oklchToRGB(
+                            0.75,          // 75% lightness
+                            0.225,         // 75% saturation (0.3 * 0.75)
+                            dominantOklch.h // Keep dominant color's hue
+                        );
                     }
-                    newC *= hueAdjustment;
-
-                    // Apply the adjustments
-                    var adjustedRgb = oklchToRGB(
-                        newL,
-                        Math.min(maxChroma, newC),
-                        oklch.h
-                    );
+                    else {
+                        // Use average color and saturate
+                        adjustedRgb = oklchToRGB(
+                            0.75,          // 75% lightness
+                            0.225,         // 75% saturation
+                            avgOklch.h     // Keep average color's hue
+                        );
+                    }
 
                     widget.dominantColor = Qt.rgba(
                         adjustedRgb[0]/255,
@@ -349,8 +407,8 @@ PlasmoidItem {
                         1.0
                     );
 
-                    console.log("Original OKLCH:", oklch.l, oklch.c, oklch.h);
-                    console.log("Adjusted OKLCH:", newL, newC, oklch.h);
+                    console.log("Average OKLCH:", avgOklch.l, avgOklch.c, avgOklch.h);
+                    console.log("Final color:", adjustedRgb);
                 }
             }
         }
@@ -517,11 +575,7 @@ PlasmoidItem {
 
                 RowLayout {
                     id: playerControls
-                    spacing: 22
-
-                    // Layout.alignment: Qt.AlignHCenter
-                    // anchors.fill: parent
-                    // Layout.fillWidth: false
+                    spacing: 27
 
                     // Center the row within the container
                     anchors.centerIn: parent
