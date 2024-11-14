@@ -3,7 +3,7 @@
     <kcfgfile name=""/>
 
     <group name="General">
-        <entry name="useDominantColor" type="Bool">
+        <entry name="useAlbumAccentColor" type="Bool">
             <default>false</default>
         </entry>
         <entry name="panelIcon" type="string">

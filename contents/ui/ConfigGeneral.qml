@@ -23,6 +23,8 @@ KCM.SimpleKCM {
     property alias cfg_useCustomFont: customFontCheckbox.checked
     property alias cfg_customFont: fontDialog.fontChosen
 
+    property alias cfg_useAlbumAccentColor: useAlbumAccentColor.checked
+
     Kirigami.FormLayout {
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
@@ -93,6 +95,17 @@ KCM.SimpleKCM {
                 textFormat: Text.PlainText
                 font: fontDialog.fontChosen
             }
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: "Accented text"
+        }
+
+        CheckBox {
+            id: useAlbumAccentColor
+            text: i18n("Use album accent color for Artist text")
+            // Kirigami.FormData.label: i18n("Album accent color for Artist text:")
         }
 
         SpinBox {

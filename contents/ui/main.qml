@@ -529,7 +529,7 @@ PlasmoidItem {
                 maxWidth: imageContainer.width
                 text: player.artists
                 opacity: 0.8
-                textColor: widget.dominantColor  // Use the extracted color
+                textColor: plasmoid.configuration.useAlbumAccentColor ? widget.dominantColor : '#A8FFFFFF'
 
                 Layout.topMargin: -10
                 Layout.bottomMargin: 12
