@@ -608,6 +608,7 @@ PlasmoidItem {
                         source: player.shuffle === Mpris.ShuffleStatus.On ? iconSources.shuffleOn : iconSources.shuffleOff
                         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
                         active: player.shuffle === Mpris.ShuffleStatus.On
+                        iconColor: player.shuffle === Mpris.ShuffleStatus.On ? widget.dominantColor : Kirigami.Theme.textColor
                     }
 
                     CommandIcon {
@@ -658,14 +659,17 @@ PlasmoidItem {
                         size: Kirigami.Units.iconSizes.medium - 12
 
                         // Choose icon based on loop status
-                        source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : player.loopStatus === Mpris.LoopStatus.None ? iconSources.repeatOff : iconSources.repeatAll
+                        // source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : player.loopStatus === Mpris.LoopStatus.None ? iconSources.repeatOff : iconSources.repeatAll
+
+                        source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : iconSources.repeatAll
+                        iconColor: player.loopStatus !== Mpris.LoopStatus.None ? widget.dominantColor : Kirigami.Theme.textColor
 
 
                         // Default opacity is 0.4 for None, 0.8 for others
                         // property real baseOpacity: player.loopStatus === Mpris.LoopStatus.None ? 0.4 : 0.8
 
                         // Use the base opacity unless hovered
-                        opacity: hovered ? 1.0 : 0.7
+                        // opacity: hovered ? 1.0 : 0.7
 
                         Behavior on opacity {
                             NumberAnimation { duration: 150 }
