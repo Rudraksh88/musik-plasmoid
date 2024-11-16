@@ -526,6 +526,7 @@ PlasmoidItem {
                 })
                 maxWidth: imageContainer.width
                 text: player.title
+                textColor: plasmoid.configuration.accentedSongName ? widget.dominantColor : '#A8FFFFFF'
 
                 // Top margin to add some space between the title and the artist
                 Layout.topMargin: -5
@@ -548,7 +549,7 @@ PlasmoidItem {
                 maxWidth: imageContainer.width
                 text: player.artists
                 opacity: 0.8
-                textColor: plasmoid.configuration.useAlbumAccentColor ? widget.dominantColor : '#A8FFFFFF'
+                textColor: plasmoid.configuration.accentedArtistName ? widget.dominantColor : '#A8FFFFFF'
 
                 Layout.topMargin: -10
                 Layout.bottomMargin: 7
@@ -608,7 +609,10 @@ PlasmoidItem {
                         source: player.shuffle === Mpris.ShuffleStatus.On ? iconSources.shuffleOn : iconSources.shuffleOff
                         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
                         active: player.shuffle === Mpris.ShuffleStatus.On
-                        iconColor: player.shuffle === Mpris.ShuffleStatus.On ? widget.dominantColor : Kirigami.Theme.textColor
+                        // iconColor: player.shuffle === Mpris.ShuffleStatus.On ? widget.dominantColor : Kirigami.Theme.textColor
+
+                        iconColor: player.shuffle === Mpris.ShuffleStatus.On ?
+                        (plasmoid.configuration.accentedButtons ? widget.dominantColor : "white") : Kirigami.Theme.textColor
                     }
 
                     CommandIcon {
@@ -662,7 +666,9 @@ PlasmoidItem {
                         // source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : player.loopStatus === Mpris.LoopStatus.None ? iconSources.repeatOff : iconSources.repeatAll
 
                         source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : iconSources.repeatAll
-                        iconColor: player.loopStatus !== Mpris.LoopStatus.None ? widget.dominantColor : Kirigami.Theme.textColor
+                        // iconColor: player.loopStatus !== Mpris.LoopStatus.None ? widget.dominantColor : Kirigami.Theme.textColor
+
+                        iconColor: player.loopStatus !== Mpris.LoopStatus.None ? (plasmoid.configuration.accentedButtons ? widget.dominantColor : "white") : Kirigami.Theme.textColor
 
 
                         // Default opacity is 0.4 for None, 0.8 for others

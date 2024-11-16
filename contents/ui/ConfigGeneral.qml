@@ -23,7 +23,9 @@ KCM.SimpleKCM {
     property alias cfg_useCustomFont: customFontCheckbox.checked
     property alias cfg_customFont: fontDialog.fontChosen
 
-    property alias cfg_useAlbumAccentColor: useAlbumAccentColor.checked
+    property alias cfg_accentedSongName: accentedSongName.checked
+    property alias cfg_accentedArtistName: accentedArtistName.checked
+    property alias cfg_accentedButtons: accentedButtons.checked
 
     Kirigami.FormLayout {
         Kirigami.Separator {
@@ -99,13 +101,30 @@ KCM.SimpleKCM {
 
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
-            Kirigami.FormData.label: "Accented text"
+            Kirigami.FormData.label: "Accent Colors"
         }
 
         CheckBox {
-            id: useAlbumAccentColor
-            text: i18n("Use album accent color for Artist text")
+            id: accentedArtistName
+            text: i18n("Accented artist name")
             // Kirigami.FormData.label: i18n("Album accent color for Artist text:")
+        }
+
+        CheckBox {
+            id: accentedButtons
+            text: i18n("Accented buttons")
+            // Kirigami.FormData.label: i18n("Album accent color for Title text:")
+        }
+
+        CheckBox {
+            id: accentedSongName
+            text: i18n("Accented song name")
+            // Kirigami.FormData.label: i18n("Album accent color for Title text:")
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: "Text scrolling"
         }
 
         SpinBox {

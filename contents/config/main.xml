@@ -3,8 +3,14 @@
     <kcfgfile name=""/>
 
     <group name="General">
-        <entry name="useAlbumAccentColor" type="Bool">
+        <entry name="accentedSongName" type="Bool">
             <default>false</default>
+        </entry>
+        <entry name="accentedArtistName" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="accentedButtons" type="Bool">
+            <default>true</default>
         </entry>
         <entry name="panelIcon" type="string">
             <default>view-media-track</default>
