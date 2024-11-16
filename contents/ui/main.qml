@@ -34,6 +34,19 @@ PlasmoidItem {
         readonly property string sourceName: mpris2Source.currentPlayer.identity.toLowerCase()
     }
 
+    QtObject {
+        id: iconSources
+        readonly property string shuffleOn:  Qt.resolvedUrl("icons/shuffle_on.svg")
+        readonly property string shuffleOff: Qt.resolvedUrl("icons/shuffle_off.svg")
+        readonly property string repeatTrack:Qt.resolvedUrl("icons/repeat_track.svg")
+        readonly property string repeatAll:  Qt.resolvedUrl("icons/repeat_all.svg")
+        readonly property string repeatOff:  Qt.resolvedUrl("icons/repeat_off.svg")
+        readonly property string play:       Qt.resolvedUrl("icons/play.svg")
+        readonly property string pause:      Qt.resolvedUrl("icons/pause.svg")
+        readonly property string prev:       Qt.resolvedUrl("icons/prev_track.svg")
+        readonly property string next:       Qt.resolvedUrl("icons/next_track.svg")
+    }
+
     compactRepresentation: Item {
         id: compact
 
@@ -506,15 +519,17 @@ PlasmoidItem {
                 speed: plasmoid.configuration.textScrollingSpeed
                 font: Qt.font({
                     // family: widget.boldTextFont.family,
-                    family: 'Spotify Mix',
-                    weight: Font.Bold,
-                    pixelSize: 22
+                    // family: 'Hubot Sans Expanded ExtraBold',
+                    family: 'Hubot Sans Condensed ExtraBold',
+                    // weight: Font.Black,
+                    pixelSize: 28
                 })
                 maxWidth: imageContainer.width
                 text: player.title
 
                 // Top margin to add some space between the title and the artist
-                // Layout.topMargin: 7
+                Layout.topMargin: -5
+                Layout.bottomMargin:3
             }
 
             ScrollingText {
@@ -523,8 +538,12 @@ PlasmoidItem {
 
                 speed: plasmoid.configuration.textScrollingSpeed
                 font: Qt.font({
-                    family: 'Spotify Mix',
-                    pixelSize: 16,
+                    // family: 'Hubot Sans Condensed',
+                    family: 'Hubot Sans Condensed ExtraBold',
+                    weight: Font.Black,
+                    capitalization: Font.AllUppercase,
+                    pixelSize: 19,
+                    // letterSpacing: 0.5
                 })
                 maxWidth: imageContainer.width
                 text: player.artists
@@ -532,7 +551,7 @@ PlasmoidItem {
                 textColor: plasmoid.configuration.useAlbumAccentColor ? widget.dominantColor : '#A8FFFFFF'
 
                 Layout.topMargin: -10
-                Layout.bottomMargin: 12
+                Layout.bottomMargin: 7
 
                 Connections {
                     target: widget
@@ -582,14 +601,11 @@ PlasmoidItem {
                     // Don't fill the width to keep buttons centered
                     width: implicitWidth
 
-
-
-
                     CommandIcon {
                         enabled: player.canChangeShuffle
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.medium - 12
-                        source: player.shuffle === Mpris.ShuffleStatus.On ? "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/arrows-shuffle.svg" : "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/arrows-right.svg"
+                        source: player.shuffle === Mpris.ShuffleStatus.On ? iconSources.shuffleOn : iconSources.shuffleOff
                         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
                         active: player.shuffle === Mpris.ShuffleStatus.On
                     }
@@ -599,7 +615,7 @@ PlasmoidItem {
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.medium - 6
                         // source: "player_prev"
-                        source: "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/player-track-prev.svg"
+                        source: iconSources.prev
                         onClicked: {
                             player.previous()
                             // Call forceUpdateScroll() from the ScrollingText.qml
@@ -612,7 +628,7 @@ PlasmoidItem {
                         enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.large
-                        source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/Pause.svg" : "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/Play.svg"
+                        source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? iconSources.pause : iconSources.play
 
                         onClicked: {
                             player.playPause()
@@ -626,7 +642,7 @@ PlasmoidItem {
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.medium - 6
                         // source: "player_next"
-                        source: "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/player-track-next.svg"
+                        source: iconSources.next
                         onClicked: {
                             player.next()
                             // Call forceUpdateScroll() from the ScrollingText.qml
@@ -642,9 +658,7 @@ PlasmoidItem {
                         size: Kirigami.Units.iconSizes.medium - 12
 
                         // Choose icon based on loop status
-                        source: player.loopStatus === Mpris.LoopStatus.Track ?
-                            "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/repeat-once.svg" :
-                            player.loopStatus === Mpris.LoopStatus.None ? "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/rep-off.svg" : "/home/rtx/.local/share/plasma/plasmoids/plasmusic-toolbar/contents/ui/rep_all.svg"
+                        source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : player.loopStatus === Mpris.LoopStatus.None ? iconSources.repeatOff : iconSources.repeatAll
 
 
                         // Default opacity is 0.4 for None, 0.8 for others

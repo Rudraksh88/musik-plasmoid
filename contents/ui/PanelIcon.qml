@@ -33,12 +33,23 @@ Item {
         }
     }
 
+    QtObject {
+        id: mediaSources
+        readonly property string brave:   Qt.resolvedUrl("icons/brave_mono.svg")
+        readonly property string chrome:  Qt.resolvedUrl("icons/chrome_mono.svg")
+        readonly property string fooyin:  Qt.resolvedUrl("icons/spotify_mono.svg")
+        readonly property string firefox: Qt.resolvedUrl("icons/firefox_mono.svg")
+        readonly property string ytMusic: Qt.resolvedUrl("icons/yt_music_mono.svg")
+        readonly property string music:   Qt.resolvedUrl("icons/music_mono.svg")
+        readonly property string spotify: Qt.resolvedUrl("icons/spotify_mono.svg")
+    }
+
     Kirigami.Icon {
         visible: type === "icon"
         id: iconComponent
         // source: root.icon
         // Set source icon based on the current player
-        source: mpris2Source.sourceName.includes('brave') ? "brave_mono" : mpris2Source.sourceName.includes('fooyin') ? "spotify_mono" : mpris2Source.sourceName.includes('firefox') ? "firefox_mono" : mpris2Source.sourceName.includes('chrome') ? "chrome_mono" : "music_mono"
+        source: mpris2Source.sourceName.includes('brave') ? mediaSources.brave : mpris2Source.sourceName.includes('fooyin') ? mediaSources.fooyin : mpris2Source.sourceName.includes('firefox') ? mediaSources.firefox : mpris2Source.sourceName.includes('chrome') ? mediaSources.chrome : mpris2Source.sourceName.includes('youtube') ? mediaSources.ytMusic : mediaSources.music
         width: 25
         height: 25
         color: Kirigami.Theme.textColor
