@@ -9,6 +9,7 @@ import QtQuick.Dialogs as QtDialogs
 KCM.SimpleKCM {
     id: configPage
 
+    property bool useCustomColor: false
     property alias cfg_panelIcon: panelIcon.value
     property alias cfg_useAlbumCoverAsPanelIcon: useAlbumCoverAsPanelIcon.checked
     property alias cfg_albumCoverRadius: albumCoverRadius.value
@@ -26,6 +27,8 @@ KCM.SimpleKCM {
     property alias cfg_accentedSongName: accentedSongName.checked
     property alias cfg_accentedArtistName: accentedArtistName.checked
     property alias cfg_accentedButtons: accentedButtons.checked
+    property alias cfg_accentColor: colorDialog.selectedColor
+    property alias cfg_useCustomColor: configPage.useCustomColor
 
     Kirigami.FormLayout {
         Kirigami.Separator {
@@ -102,6 +105,88 @@ KCM.SimpleKCM {
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
             Kirigami.FormData.label: "Accent Colors"
+        }
+
+        // Radio button selector for either using the album cover color or a custom color
+        RowLayout {
+            spacing: 30
+            RadioButton {
+                // Align the radio button to the top
+                Layout.alignment: Qt.AlignTop
+                text: i18n("Album cover")
+                checked: !cfg_useCustomColor
+                onCheckedChanged: {
+                    if (checked) {
+                        cfg_useCustomColor = false
+                    }
+                }
+            }
+            ColumnLayout {
+                RadioButton {
+                    text: i18n("Custom color")
+                    checked: cfg_useCustomColor
+                    onCheckedChanged: {
+                        if (checked) {
+                            cfg_useCustomColor = true
+                        }
+                    }
+                }
+
+                RowLayout {
+                    visible: cfg_useCustomColor
+                    // Layout.leftMargin: -20
+                    // Label {
+                    //     text: i18n("Custom accent color:")
+                    // }
+                    Rectangle {
+                        width: 30
+                        height: 30
+                        color: colorDialog.selectedColor || "#1d99f3"  // Default KDE blue
+                        radius: 4
+                        border.width: 1
+                        border.color: Qt.rgba(0, 0, 0, 0.2)
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: colorDialog.open()
+                        }
+                    }
+                    TextField {
+                        text: colorDialog.selectedColor.toString()
+                        placeholderText: "#RRGGBB"
+                        inputMask: "\\#HHHHHH"
+                        onTextChanged: {
+                            // Only update if it's a valid hex color
+                            if (text.match(/#[0-9A-Fa-f]{6}/)) {
+                                colorDialog.selectedColor = text
+                                cfg_accentColor = text
+                            }
+                        }
+                        Layout.preferredWidth: 100
+                    }
+                }
+            }
+
+            Layout.topMargin: 10
+            Layout.bottomMargin: 10
+        }
+
+        QtDialogs.ColorDialog {
+            id: colorDialog
+            title: i18n("Choose accent color")
+            selectedColor: cfg_accentColor || "#1d99f3"  // Default KDE blue
+            onAccepted: {
+                cfg_accentColor = selectedColor
+            }
+        }
+
+        // Description text
+        Label {
+            text: i18n("Use the accent color for the following elements:")
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            opacity: 0.5
+            Layout.topMargin: 6
+            Layout.bottomMargin: 6
         }
 
         CheckBox {

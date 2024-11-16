@@ -13,7 +13,10 @@ PlasmoidItem {
 
     Plasmoid.status: PlasmaCore.Types.HiddenStatus
 
-    property color dominantColor: "#A8FFFFFF"  // Default color
+    // property color dominantColor: "#A8FFFFFF"  // Default color
+    property color dominantColor: plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : "#A8FFFFFF"
+    property color defaultActiveColor: "white"
+    property color defaultForegroundColor: Qt.rgba(1, 1, 1, 0.65)
 
     readonly property font textFont: {
         return plasmoid.configuration.useCustomFont ? plasmoid.configuration.customFont : Kirigami.Theme.defaultFont
@@ -526,7 +529,14 @@ PlasmoidItem {
                 })
                 maxWidth: imageContainer.width
                 text: player.title
-                textColor: plasmoid.configuration.accentedSongName ? widget.dominantColor : '#A8FFFFFF'
+
+                /*
+                * If accented song name is enabled
+                *   if custom color is enabled, use the custom color
+                *   else use the dominant color
+                * else use the default color
+                */
+                textColor: plasmoid.configuration.accentedSongName ? (plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : widget.dominantColor) : '#A8FFFFFF'
 
                 // Top margin to add some space between the title and the artist
                 Layout.topMargin: -5
@@ -549,7 +559,14 @@ PlasmoidItem {
                 maxWidth: imageContainer.width
                 text: player.artists
                 opacity: 0.8
-                textColor: plasmoid.configuration.accentedArtistName ? widget.dominantColor : '#A8FFFFFF'
+
+                /*
+                * If accented artist name is enabled
+                *   if custom color is enabled, use the custom color
+                *   else use the dominant color
+                * else use the default color
+                */
+                textColor: plasmoid.configuration.accentedArtistName ? (plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : widget.dominantColor) : '#A8FFFFFF'
 
                 Layout.topMargin: -10
                 Layout.bottomMargin: 7
@@ -611,8 +628,14 @@ PlasmoidItem {
                         active: player.shuffle === Mpris.ShuffleStatus.On
                         // iconColor: player.shuffle === Mpris.ShuffleStatus.On ? widget.dominantColor : Kirigami.Theme.textColor
 
+                        /*
+                        * If accented buttons is enabled
+                        *   if custom color is enabled, use the custom color
+                        *   else use the dominant color
+                        * else use the default color
+                        */
                         iconColor: player.shuffle === Mpris.ShuffleStatus.On ?
-                        (plasmoid.configuration.accentedButtons ? widget.dominantColor : "white") : Kirigami.Theme.textColor
+                        (plasmoid.configuration.accentedButtons && !plasmoid.configuration.useCustomColor ? widget.dominantColor : plasmoid.configuration.accentColor) : defaultForegroundColor
                     }
 
                     CommandIcon {
@@ -668,7 +691,14 @@ PlasmoidItem {
                         source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : iconSources.repeatAll
                         // iconColor: player.loopStatus !== Mpris.LoopStatus.None ? widget.dominantColor : Kirigami.Theme.textColor
 
-                        iconColor: player.loopStatus !== Mpris.LoopStatus.None ? (plasmoid.configuration.accentedButtons ? widget.dominantColor : "white") : Kirigami.Theme.textColor
+                        /*
+                        * If accented buttons is enabled
+                        *   if custom color is enabled, use the custom color
+                        *   else use the dominant color
+                        * else use the default color
+                        */
+                        iconColor: player.loopStatus !== Mpris.LoopStatus.None ?
+                        (plasmoid.configuration.accentedButtons && !plasmoid.configuration.useCustomColor ? widget.dominantColor : plasmoid.configuration.accentColor) : defaultForegroundColor
 
 
                         // Default opacity is 0.4 for None, 0.8 for others
