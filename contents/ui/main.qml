@@ -581,8 +581,8 @@ PlasmoidItem {
 
 
             TrackPositionSlider {
-                Layout.leftMargin: 12
-                Layout.rightMargin: 12
+                Layout.leftMargin: 6
+                Layout.rightMargin: 6
 
                 Layout.preferredWidth: imageContainer.width
                 Layout.alignment: Qt.AlignHCenter

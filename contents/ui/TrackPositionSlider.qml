@@ -70,10 +70,18 @@ Item {
             PlasmaComponents3.Label {
                 Layout.alignment: Qt.AlignLeft
                 text: timeLabels.formatDuration(container.songPosition)
+                font: Qt.font({
+                    pointSize: 10,
+                    features: { "tnum": 1 }
+                })
             }
             PlasmaComponents3.Label {
                 Layout.alignment: Qt.AlignRight
                 text: timeLabels.formatDuration(container.songLength - container.songPosition)
+                font: Qt.font({
+                    pointSize: 10,
+                    features: { "tnum": 1 }
+                })
             }
         }
     }
