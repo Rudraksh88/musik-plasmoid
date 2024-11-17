@@ -244,9 +244,15 @@ Item {
             PlasmaComponents3.Label {
                 Layout.alignment: Qt.AlignLeft
                 text: timeLabels.formatDuration(container.songPosition)
+                // font: Qt.font({
+                //     pointSize: 10.5,
+                //     features: { "tnum": 1 }
+                // })
                 font: Qt.font({
-                    pointSize: 10.5,
-                    features: { "tnum": 1 }
+                    pointSize: timeFont.pointSize,
+                    features: { "tnum": 1 },
+                    family: timeFont.family,
+                    letterSpacing: timeFont.letterSpacing
                 })
                 opacity: 1
             }
@@ -254,9 +260,15 @@ Item {
             PlasmaComponents3.Label {
                 Layout.alignment: Qt.AlignRight
                 text: timeLabels.formatDuration(container.songLength - container.songPosition)
+                // font: Qt.font({
+                //     pointSize: 10.5,
+                //     features: { "tnum": 1 }
+                // })
                 font: Qt.font({
-                    pointSize: 10.5,
-                    features: { "tnum": 1 }
+                    pointSize: timeFont.pointSize,
+                    features: { "tnum": 1 },
+                    family: timeFont.family,
+                    letterSpacing: timeFont.letterSpacing
                 })
                 opacity: 0.7
             }

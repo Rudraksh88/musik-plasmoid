@@ -50,6 +50,61 @@ PlasmoidItem {
         readonly property string next:       Qt.resolvedUrl("icons/next_track.svg")
     }
 
+    // Mini Player font properties
+    readonly property font miniPlayerSongNameFont: {
+        if (plasmoid.configuration.miniPlayerSongNameUseCustomFont) {
+            let font = plasmoid.configuration.miniPlayerSongNameFont
+            font.letterSpacing = plasmoid.configuration.miniPlayerSongNameSpacing
+            return font
+        }
+        return Kirigami.Theme.defaultFont
+    }
+
+    readonly property font miniPlayerArtistNameFont: {
+        if (plasmoid.configuration.miniPlayerArtistNameUseCustomFont) {
+            let font = plasmoid.configuration.miniPlayerArtistNameFont
+            font.letterSpacing = plasmoid.configuration.miniPlayerArtistNameSpacing
+            return font
+        }
+        return Kirigami.Theme.defaultFont
+    }
+
+    // Full Player font properties
+    readonly property font fullPlayerSongNameFont: {
+        if (plasmoid.configuration.fullPlayerSongNameUseCustomFont) {
+            let font = plasmoid.configuration.fullPlayerSongNameFont
+            font.letterSpacing = plasmoid.configuration.fullPlayerSongNameSpacing
+            return font
+        }
+        return Qt.font({
+            family: 'Hubot Sans Condensed ExtraBold',
+            pixelSize: 28
+        })
+    }
+
+    readonly property font fullPlayerArtistNameFont: {
+        if (plasmoid.configuration.fullPlayerArtistNameUseCustomFont) {
+            let font = plasmoid.configuration.fullPlayerArtistNameFont
+            font.letterSpacing = plasmoid.configuration.fullPlayerArtistNameSpacing
+            return font
+        }
+        return Qt.font({
+            family: 'Hubot Sans Condensed ExtraBold',
+            weight: Font.Black,
+            capitalization: Font.AllUppercase,
+            pixelSize: 19
+        })
+    }
+
+    readonly property font timerFont: {
+        if (plasmoid.configuration.timerUseCustomFont) {
+            let font = plasmoid.configuration.timerFont
+            font.letterSpacing = plasmoid.configuration.timerSpacing
+            return font
+        }
+        return Kirigami.Theme.defaultFont
+    }
+
     compactRepresentation: Item {
         id: compact
 
@@ -103,11 +158,13 @@ PlasmoidItem {
 
                     ScrollingText {
                         overflowBehaviour: plasmoid.configuration.textScrollingBehaviour
-                        font: Qt.font({
-                            family: widget.boldTextFont.family,
-                            weight: Font.Bold,
-                            pixelSize: 12
-                        })
+                        // font: Qt.font({
+                        //     family: widget.boldTextFont.family,
+                        //     weight: Font.Bold,
+                        //     pixelSize: 12
+                        // })
+                        font: widget.miniPlayerSongNameFont
+
                         speed: plasmoid.configuration.textScrollingSpeed
                         maxWidth: plasmoid.configuration.maxSongWidthInPanel
                         text: player.title
@@ -117,10 +174,11 @@ PlasmoidItem {
                     }
                     ScrollingText {
                         overflowBehaviour: plasmoid.configuration.textScrollingBehaviour
-                        font: Qt.font({
-                            family: widget.textFont.family,
-                            pixelSize: 7
-                        })
+                        // font: Qt.font({
+                        //     family: widget.textFont.family,
+                        //     pixelSize: 7
+                        // })
+                        font: widget.miniPlayerArtistNameFont
                         speed: plasmoid.configuration.textScrollingSpeed
                         maxWidth: plasmoid.configuration.maxSongWidthInPanel
                         text: player.artists
@@ -137,7 +195,8 @@ PlasmoidItem {
                 speed: plasmoid.configuration.textScrollingSpeed
                 maxWidth: plasmoid.configuration.maxSongWidthInPanel
                 text: [player.artists, player.title].filter((x) => x).join(" - ")
-                font: widget.textFont
+                // font: widget.textFont
+                font: widget.miniPlayerSongNameFont
                 // Align to the left
                 Layout.alignment: Qt.AlignLeft
                 Layout.leftMargin: 5 // Some spacing to the left of the text
@@ -520,13 +579,14 @@ PlasmoidItem {
                 // horizontalAlignment: Text.AlignHCenter
 
                 speed: plasmoid.configuration.textScrollingSpeed
-                font: Qt.font({
-                    // family: widget.boldTextFont.family,
-                    // family: 'Hubot Sans Expanded ExtraBold',
-                    family: 'Hubot Sans Condensed ExtraBold',
-                    // weight: Font.Black,
-                    pixelSize: 28
-                })
+                // font: Qt.font({
+                //     // family: widget.boldTextFont.family,
+                //     // family: 'Hubot Sans Expanded ExtraBold',
+                //     family: 'Hubot Sans Condensed ExtraBold',
+                //     // weight: Font.Black,
+                //     pixelSize: 28
+                // })
+                font: widget.fullPlayerSongNameFont
                 maxWidth: imageContainer.width
                 text: player.title
 
@@ -548,14 +608,15 @@ PlasmoidItem {
                 Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
 
                 speed: plasmoid.configuration.textScrollingSpeed
-                font: Qt.font({
-                    // family: 'Hubot Sans Condensed',
-                    family: 'Hubot Sans Condensed ExtraBold',
-                    weight: Font.Black,
-                    capitalization: Font.AllUppercase,
-                    pixelSize: 19,
-                    // letterSpacing: 0.5
-                })
+                // font: Qt.font({
+                //     // family: 'Hubot Sans Condensed',
+                //     family: 'Hubot Sans Condensed ExtraBold',
+                //     weight: Font.Black,
+                //     capitalization: Font.AllUppercase,
+                //     pixelSize: 19,
+                //     // letterSpacing: 0.5
+                // })
+                font: widget.fullPlayerArtistNameFont
                 maxWidth: imageContainer.width
                 text: player.artists
                 opacity: 0.8
@@ -597,6 +658,8 @@ PlasmoidItem {
                 progressColor: widget.dominantColor
                 progressColorOnHover: widget.dominantColor
                 defaultForegroundColor: widget.defaultForegroundColor
+
+                property font timeFont: widget.timerFont
 
                 // Original properties
                 songPosition: player.songPosition
