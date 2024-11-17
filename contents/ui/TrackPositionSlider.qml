@@ -17,7 +17,9 @@ Item {
     // Custom properties
     property color trackColor: "#30FFFFFF"
     property color progressColor: "#FFFFFF"
-    property color handleColor: "#FFFFFF"
+    property color progressColorOnHover: progressColor  // New property for hover state
+    property color handleColor: progressColor          // Handle color follows progress color
+    property color defaultForegroundColor: "#FFFFFF"   // Default color when no accent
     property real trackThickness: 4
     property real handleSize: 15
     property real handleRadius: handleSize / 2
@@ -26,6 +28,21 @@ Item {
 
     property double lastSongLength: 0
 
+    // Helper functions for color determination
+    function getCurrentProgressColor() {
+        if (!plasmoid.configuration.accentedProgressBar) {
+            return defaultForegroundColor
+        }
+
+        if (plasmoid.configuration.progressBarAccentOnHover) {
+            return customSlider.hovered ?
+                   (plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : progressColorOnHover) :
+                   defaultForegroundColor
+        }
+
+        return plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : progressColor
+    }
+
     // Signals
     signal requireChangePosition(position: double)
     signal requireUpdatePosition()
@@ -33,14 +50,12 @@ Item {
     Layout.preferredHeight: column.implicitHeight
     Layout.fillWidth: true
 
-    // Monitor track changes
     onSongLengthChanged: {
         if (lastSongLength !== songLength) {
             lastSongLength = songLength
         }
     }
 
-    // Update progress when song position changes
     onSongPositionChanged: {
         if (!customSlider.pressed && !customSlider.changingPosition) {
             customSlider.value = songPosition / Math.max(1, songLength)
@@ -75,14 +90,11 @@ Item {
             Rectangle {
                 id: track
                 anchors.centerIn: parent
-                // Adjust track width to account for handle overflow
                 width: parent.width - container.handleSize
                 height: container.trackThickness
                 radius: height / 2
                 color: container.trackColor
                 antialiasing: true
-
-                // Center the track considering handle size
                 x: container.handleSize / 2
 
                 Rectangle {
@@ -90,7 +102,7 @@ Item {
                     width: Math.max(0, Math.min(parent.width, parent.width * customSlider.value))
                     height: parent.height
                     radius: height / 2
-                    color: container.progressColor
+                    color: getCurrentProgressColor()
                     antialiasing: true
                     clip: true
 
@@ -100,6 +112,14 @@ Item {
                             velocity: -1
                         }
                     }
+
+                    // Add color transition
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                            easing.type: Easing.OutCubic
+                        }
+                    }
                 }
 
                 Rectangle {
@@ -107,20 +127,19 @@ Item {
                     width: container.handleSize
                     height: container.handleSize
                     radius: container.handleRadius
-                    color: container.handleColor
+                    color: getCurrentProgressColor()  // Handle color matches progress
                     antialiasing: true
 
-                    // Position handle to align its center with progress bar end
                     x: progress.width - (width / 2)
                     y: -height/2 + parent.height/2
 
                     transformOrigin: Item.Center
 
                     scale: {
-                        if (customSlider.handleHovered) return 2        // Larger scale when handle is hovered
-                        if (customSlider.hovered) return 1               // Normal scale when track is hovered
-                        if (container.showHandleOnHover) return 0.6      // Small scale when not hovered
-                        return 1                                         // Normal scale if hover disabled
+                        if (customSlider.handleHovered) return 2
+                        if (customSlider.hovered) return 1
+                        if (container.showHandleOnHover) return 0.6
+                        return 1
                     }
 
                     opacity: (!container.showHandleOnHover || customSlider.hovered) ? 1 : 0
@@ -144,6 +163,13 @@ Item {
                         SmoothedAnimation {
                             duration: 50
                             velocity: -1
+                        }
+                    }
+                    // Add color transition
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                            easing.type: Easing.OutCubic
                         }
                     }
 
@@ -193,7 +219,6 @@ Item {
                 }
 
                 function updatePosition(mouse) {
-                    // Adjust mouse position calculation to account for handle size
                     const adjustedWidth = width - container.handleSize
                     const adjustedX = mouse.x - (container.handleSize / 2)
                     const newValue = Math.max(0, Math.min(1, adjustedX / adjustedWidth))
@@ -221,7 +246,6 @@ Item {
                 text: timeLabels.formatDuration(container.songPosition)
                 font: Qt.font({
                     pointSize: 10.5,
-                    weight: Font.Bold,
                     features: { "tnum": 1 }
                 })
                 opacity: 1

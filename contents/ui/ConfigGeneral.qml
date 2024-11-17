@@ -10,6 +10,7 @@ KCM.SimpleKCM {
     id: configPage
 
     property bool useCustomColor: false
+    property bool progressBarAccentOnHover: true
     property alias cfg_panelIcon: panelIcon.value
     property alias cfg_useAlbumCoverAsPanelIcon: useAlbumCoverAsPanelIcon.checked
     property alias cfg_albumCoverRadius: albumCoverRadius.value
@@ -28,6 +29,8 @@ KCM.SimpleKCM {
     property alias cfg_accentedArtistName: accentedArtistName.checked
     property alias cfg_accentedButtons: accentedButtons.checked
     property alias cfg_accentColor: colorDialog.selectedColor
+    property alias cfg_accentedProgressBar: accentedProgressBar.checked
+    property alias cfg_progressBarAccentOnHover: configPage.progressBarAccentOnHover  // Assuming root is your root component's id
     property alias cfg_useCustomColor: configPage.useCustomColor
 
     Kirigami.FormLayout {
@@ -191,20 +194,66 @@ KCM.SimpleKCM {
 
         CheckBox {
             id: accentedArtistName
-            text: i18n("Accented artist name")
+            text: i18n("Artist name")
             // Kirigami.FormData.label: i18n("Album accent color for Artist text:")
         }
 
         CheckBox {
             id: accentedButtons
-            text: i18n("Accented buttons")
+            text: i18n("Buttons (Repeat, Shuffle)")
             // Kirigami.FormData.label: i18n("Album accent color for Title text:")
         }
 
         CheckBox {
             id: accentedSongName
-            text: i18n("Accented song name")
+            text: i18n("Song name")
             // Kirigami.FormData.label: i18n("Album accent color for Title text:")
+        }
+
+        ColumnLayout {
+            // Accent color settings for the progress bar
+            CheckBox {
+                id: accentedProgressBar
+                text: i18n("Progress bar")
+                checked: cfg_accentedProgressBar
+                onCheckedChanged: {
+                    cfg_accentedProgressBar = checked
+                    // If accent is disabled, also disable hover mode
+                    // if (!checked) {
+                    //     cfg_progressBarAccentOnHover = false
+                    // }
+                }
+            }
+
+            // Radio button selector for accent behavior
+            RowLayout {
+                visible: accentedProgressBar.checked  // Only show when accent is enabled
+                spacing: 30
+                RadioButton {
+                    Layout.alignment: Qt.AlignTop
+                    text: i18n("On hover")
+                    checked: cfg_progressBarAccentOnHover
+                    onCheckedChanged: {
+                        if (checked) {
+                            cfg_progressBarAccentOnHover = true
+                        }
+                    }
+                }
+                ColumnLayout {
+                    RadioButton {
+                        text: i18n("Always")
+                        checked: !cfg_progressBarAccentOnHover
+                        onCheckedChanged: {
+                            if (checked) {
+                                cfg_progressBarAccentOnHover = false
+                            }
+                        }
+                    }
+                }
+
+                Layout.topMargin: -5
+                Layout.bottomMargin: 10
+            }
         }
 
         Kirigami.Separator {

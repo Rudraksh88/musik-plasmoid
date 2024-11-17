@@ -12,6 +12,12 @@
         <entry name="accentedButtons" type="Bool">
             <default>true</default>
         </entry>
+        <entry name="accentedProgressBar" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="progressBarAccentOnHover" type="Bool">
+            <default>true</default>
+        </entry>
         <entry name="useCustomColor" type="Bool">
             <default>false</default>
         </entry>

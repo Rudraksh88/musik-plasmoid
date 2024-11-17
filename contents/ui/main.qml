@@ -588,16 +588,15 @@ PlasmoidItem {
 
                 // Customize appearance
                 trackColor: "#30FFFFFF"
-                progressColor: plasmoid.configuration.accentedButtons ?
-                            (plasmoid.configuration.useCustomColor ?
-                            plasmoid.configuration.accentColor :
-                            widget.dominantColor) :
-                            "#FFFFFF"
                 handleColor: "#FFFFFF"
                 trackThickness: 3
                 handleSize: 15
                 handleRadius: handleSize / 2  // Circle
                 showHandleOnHover: true
+
+                progressColor: widget.dominantColor
+                progressColorOnHover: widget.dominantColor
+                defaultForegroundColor: widget.defaultForegroundColor
 
                 // Original properties
                 songPosition: player.songPosition
