@@ -569,7 +569,7 @@ PlasmoidItem {
                 textColor: plasmoid.configuration.accentedArtistName ? (plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : widget.dominantColor) : '#A8FFFFFF'
 
                 Layout.topMargin: -10
-                Layout.bottomMargin: 7
+                Layout.bottomMargin: -3
 
                 Connections {
                     target: widget
@@ -581,22 +581,31 @@ PlasmoidItem {
 
 
             TrackPositionSlider {
-                Layout.leftMargin: 6
-                Layout.rightMargin: 6
-
+                // Layout.leftMargin: 6
+                // Layout.rightMargin: 6
                 Layout.preferredWidth: imageContainer.width
                 Layout.alignment: Qt.AlignHCenter
 
+                // Customize appearance
+                trackColor: "#30FFFFFF"
+                progressColor: plasmoid.configuration.accentedButtons ?
+                            (plasmoid.configuration.useCustomColor ?
+                            plasmoid.configuration.accentColor :
+                            widget.dominantColor) :
+                            "#FFFFFF"
+                handleColor: "#FFFFFF"
+                trackThickness: 3
+                handleSize: 15
+                handleRadius: handleSize / 2  // Circle
+                showHandleOnHover: true
+
+                // Original properties
                 songPosition: player.songPosition
                 songLength: player.songLength
                 playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
                 enableChangePosition: player.canSeek
-                onRequireChangePosition: (position) => {
-                    player.setPosition(position)
-                }
-                onRequireUpdatePosition: () => {
-                    player.updatePosition()
-                }
+                onRequireChangePosition: (position) => player.setPosition(position)
+                onRequireUpdatePosition: () => player.updatePosition()
             }
 
             Item {
