@@ -399,6 +399,13 @@ PlasmoidItem {
         return (grayCount / totalPixels) > 0.7; // Consider gray if 70% pixels are gray
     }
 
+    function prettyPrintColor(color) {
+        // Print color in a square in the terminal
+        const size = 10;
+        const colorStr = `\x1b[48;2;${color[0]};${color[1]};${color[2]}m${' '.repeat(size)}\x1b[0m`;
+        console.log(colorStr);
+    }
+
     Canvas {
         id: hiddenCanvas
         visible: false
@@ -414,6 +421,11 @@ PlasmoidItem {
             onStatusChanged: {
                 if (status === Image.Ready) {
                     hiddenCanvas.requestPaint();
+                } else {
+                    console.error("Image not ready, no color extracted");
+
+                    // Return to default color
+                    widget.dominantColor = plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : Qt.rgba(1, 1, 1, 0.45);
                 }
             }
         }
@@ -490,6 +502,7 @@ PlasmoidItem {
 
                     console.log("Average OKLCH:", avgOklch.l, avgOklch.c, avgOklch.h);
                     console.log("Final color:", adjustedRgb);
+                    prettyPrintColor(adjustedRgb);
                 }
             }
         }
@@ -655,7 +668,7 @@ PlasmoidItem {
 
                 // Customize appearance
                 trackColor: "#30FFFFFF"
-                handleColor: "#FFFFFF"
+                // handleColor: "#FFFFFF"
                 trackThickness: 3
                 handleSize: 15
                 handleRadius: handleSize / 2  // Circle
@@ -689,7 +702,7 @@ PlasmoidItem {
 
                 RowLayout {
                     id: playerControls
-                    spacing: 27
+                    spacing: 25
 
                     // Center the row within the container
                     anchors.centerIn: parent
@@ -699,7 +712,8 @@ PlasmoidItem {
                     CommandIcon {
                         enabled: player.canChangeShuffle
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium - 12
+                        size: 35
+                        property real iconScale: 0.65
                         source: player.shuffle === Mpris.ShuffleStatus.On ? iconSources.shuffleOn : iconSources.shuffleOff
                         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
                         active: player.shuffle === Mpris.ShuffleStatus.On
@@ -718,7 +732,7 @@ PlasmoidItem {
                     CommandIcon {
                         enabled: player.canGoPrevious
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium - 6
+                        size: Kirigami.Units.iconSizes.medium - 2
                         // source: "player_prev"
                         source: iconSources.prev
                         onClicked: {
@@ -745,7 +759,7 @@ PlasmoidItem {
                     CommandIcon {
                         enabled: player.canGoNext
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium - 6
+                        size: Kirigami.Units.iconSizes.medium - 2
                         // source: "player_next"
                         source: iconSources.next
                         onClicked: {
@@ -760,7 +774,9 @@ PlasmoidItem {
                         id: repeatButton
                         enabled: player.canChangeLoopStatus
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium - 12
+                        size: 35
+                        // Scale down icon
+                        property real iconScale: 0.65
 
                         // Choose icon based on loop status
                         // source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : player.loopStatus === Mpris.LoopStatus.None ? iconSources.repeatOff : iconSources.repeatAll

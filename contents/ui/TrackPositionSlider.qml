@@ -18,7 +18,7 @@ Item {
     property color trackColor: "#30FFFFFF"
     property color progressColor: "#FFFFFF"
     property color progressColorOnHover: progressColor  // New property for hover state
-    property color handleColor: progressColor          // Handle color follows progress color
+    property color handleColor: progressColor
     property color defaultForegroundColor: "#FFFFFF"   // Default color when no accent
     property real trackThickness: 4
     property real handleSize: 15
@@ -31,16 +31,23 @@ Item {
     // Helper functions for color determination
     function getCurrentProgressColor() {
         if (!plasmoid.configuration.accentedProgressBar) {
+            // console.log("No accent", defaultForegroundColor)
             return defaultForegroundColor
         }
 
         if (plasmoid.configuration.progressBarAccentOnHover) {
+            // console.log("Accent on hover", customSlider.hovered ? progressColorOnHover : defaultForegroundColor)
             return customSlider.hovered ?
                    (plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : progressColorOnHover) :
                    defaultForegroundColor
         }
 
+        // console.log("Accent", plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : progressColor)
         return plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : progressColor
+    }
+
+    function hasAlpha(color) {
+        return color.toString().length > 7
     }
 
     // Signals
@@ -127,7 +134,8 @@ Item {
                     width: container.handleSize
                     height: container.handleSize
                     radius: container.handleRadius
-                    color: getCurrentProgressColor()  // Handle color matches progress
+                    // color: "#F4F4F4"
+                    color: hasAlpha(getCurrentProgressColor()) ? "#F4F4F4" : getCurrentProgressColor()
                     antialiasing: true
 
                     x: progress.width - (width / 2)

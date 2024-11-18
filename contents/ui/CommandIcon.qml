@@ -33,7 +33,9 @@ Item {
         width: Kirigami.Units.iconSizes.small
         height: width
         color: container.iconColor
+        antialiasing: true
         visible: false
+        scale: iconScale
 
         Behavior on scale {
             NumberAnimation { duration: 150 }
@@ -53,6 +55,7 @@ Item {
                iconColor
         antialiasing: true
         opacity: isAccented ? 1.0 : (mouseArea.containsMouse ? 1.0 : 0.7) // Only apply opacity animation to non-accented
+        scale: iconScale
 
         Behavior on opacity {
             NumberAnimation { duration: 150 }
