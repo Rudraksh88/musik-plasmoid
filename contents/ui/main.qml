@@ -55,6 +55,8 @@ PlasmoidItem {
         if (plasmoid.configuration.miniPlayerSongNameUseCustomFont) {
             let font = plasmoid.configuration.miniPlayerSongNameFont
             font.letterSpacing = plasmoid.configuration.miniPlayerSongNameSpacing
+            font.capitalization = plasmoid.configuration.miniPlayerSongNameCapitalize ?
+                                Font.AllUppercase : Font.MixedCase
             return font
         }
         return Kirigami.Theme.defaultFont
@@ -64,16 +66,19 @@ PlasmoidItem {
         if (plasmoid.configuration.miniPlayerArtistNameUseCustomFont) {
             let font = plasmoid.configuration.miniPlayerArtistNameFont
             font.letterSpacing = plasmoid.configuration.miniPlayerArtistNameSpacing
+            font.capitalization = plasmoid.configuration.miniPlayerArtistNameCapitalize ?
+                                Font.AllUppercase : Font.MixedCase
             return font
         }
         return Kirigami.Theme.defaultFont
     }
 
-    // Full Player font properties
     readonly property font fullPlayerSongNameFont: {
         if (plasmoid.configuration.fullPlayerSongNameUseCustomFont) {
             let font = plasmoid.configuration.fullPlayerSongNameFont
             font.letterSpacing = plasmoid.configuration.fullPlayerSongNameSpacing
+            font.capitalization = plasmoid.configuration.fullPlayerSongNameCapitalize ?
+                                Font.AllUppercase : Font.MixedCase
             return font
         }
         return Qt.font({
@@ -86,6 +91,8 @@ PlasmoidItem {
         if (plasmoid.configuration.fullPlayerArtistNameUseCustomFont) {
             let font = plasmoid.configuration.fullPlayerArtistNameFont
             font.letterSpacing = plasmoid.configuration.fullPlayerArtistNameSpacing
+            font.capitalization = plasmoid.configuration.fullPlayerArtistNameCapitalize ?
+                                Font.AllUppercase : Font.MixedCase
             return font
         }
         return Qt.font({
@@ -100,6 +107,8 @@ PlasmoidItem {
         if (plasmoid.configuration.timerUseCustomFont) {
             let font = plasmoid.configuration.timerFont
             font.letterSpacing = plasmoid.configuration.timerSpacing
+            font.capitalization = plasmoid.configuration.timerCapitalize ?
+                                Font.AllUppercase : Font.MixedCase
             return font
         }
         return Kirigami.Theme.defaultFont

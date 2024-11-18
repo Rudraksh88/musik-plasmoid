@@ -36,24 +36,36 @@ KCM.SimpleKCM {
     // Mini Player font properties
     property alias cfg_miniPlayerSongNameUseCustomFont: miniPlayerSongNameFontCheckbox.checked
     property alias cfg_miniPlayerSongNameFont: miniPlayerSongNameFontDialog.fontChosen
-    property alias cfg_miniPlayerSongNameSpacing: miniPlayerSongNameSpacing.value
+    property alias cfg_miniPlayerSongNameCapitalize: miniPlayerSongNameCapitalize.checked
+    property double cfg_miniPlayerSongNameSpacing: 0.00
 
     property alias cfg_miniPlayerArtistNameUseCustomFont: miniPlayerArtistNameFontCheckbox.checked
     property alias cfg_miniPlayerArtistNameFont: miniPlayerArtistNameFontDialog.fontChosen
-    property alias cfg_miniPlayerArtistNameSpacing: miniPlayerArtistNameSpacing.value
+    property alias cfg_miniPlayerArtistNameCapitalize: miniPlayerArtistNameCapitalize.checked
+    property double cfg_miniPlayerArtistNameSpacing: 0.00
 
     // Full Player font properties
     property alias cfg_fullPlayerSongNameUseCustomFont: fullPlayerSongNameFontCheckbox.checked
     property alias cfg_fullPlayerSongNameFont: fullPlayerSongNameFontDialog.fontChosen
-    property alias cfg_fullPlayerSongNameSpacing: fullPlayerSongNameSpacing.value
+    property alias cfg_fullPlayerSongNameCapitalize: fullPlayerSongNameCapitalize.checked
+    property double cfg_fullPlayerSongNameSpacing: 0.00
 
     property alias cfg_fullPlayerArtistNameUseCustomFont: fullPlayerArtistNameFontCheckbox.checked
     property alias cfg_fullPlayerArtistNameFont: fullPlayerArtistNameFontDialog.fontChosen
-    property alias cfg_fullPlayerArtistNameSpacing: fullPlayerArtistNameSpacing.value
+    property alias cfg_fullPlayerArtistNameCapitalize: fullPlayerArtistNameCapitalize.checked
+    property double cfg_fullPlayerArtistNameSpacing: 0.00
 
     property alias cfg_timerUseCustomFont: timerFontCheckbox.checked
     property alias cfg_timerFont: timerFontDialog.fontChosen
-    property alias cfg_timerSpacing: timerSpacing.value
+    property alias cfg_timerCapitalize: timerCapitalize.checked
+    property double cfg_timerSpacing: 0.00
+
+    // Helper function to validate and format spacing input
+    function validateSpacing(text) {
+        if (text === "") return 0.00
+        const num = parseFloat(text)
+        return isNaN(num) ? 0.00 : Math.max(-20.00, Math.min(20.00, num))
+    }
 
     Kirigami.FormLayout {
         Kirigami.Separator {
@@ -102,220 +114,360 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: "Font settings"
         }
 
-        Label {
-            text: i18n("Mini Player")
-            font.bold: true
-            Layout.topMargin: Kirigami.Units.largeSpacing
-        }
-
-        // Mini Player Song Name
         ColumnLayout {
-            Kirigami.FormData.label: i18n("Song name:")
-            spacing: Kirigami.Units.smallSpacing
+            id: miniPlayerFontSettings
+            spacing: 20
 
-            RowLayout {
-                CheckBox {
-                    id: miniPlayerSongNameFontCheckbox
-                    text: i18n("Use custom font")
+            Label {
+                text: "MINI PLAYER"
+                font.bold: true
+                font.pointSize: 10
+                font.letterSpacing: 2
+                opacity: 0.5
+                Layout.bottomMargin: -10
+                Layout.topMargin: 5
+            }
+
+            ColumnLayout {
+                // spacing: Kirigami.Units.smallSpacing
+
+                RowLayout {
+                    Label {
+                        text: i18n("Song name:")
+                        font.weight: Font.ExtraBold
+                        opacity: 0.7
+                    }
+
+                    Label {
+                        visible: miniPlayerSongNameFontCheckbox.checked && miniPlayerSongNameFontDialog.fontChosen
+                        text: i18n("%2pt, %1", miniPlayerSongNameFontDialog.fontChosen.family,
+                                miniPlayerSongNameFontDialog.fontChosen.pointSize)
+                        font: Qt.font({
+                            family: miniPlayerSongNameFontDialog.fontChosen.family,
+                            pointSize: 12
+                        })
+                    }
                 }
 
-                Button {
-                    text: i18n("Choose font...")
-                    icon.name: "settings-configure"
+                RowLayout {
+                    spacing: Kirigami.Units.smallSpacing
+
+                    CheckBox {
+                        id: miniPlayerSongNameFontCheckbox
+                        text: i18n("Use custom font")
+                    }
+
+                    Button {
+                        text: i18n("Choose font...")
+                        icon.name: "settings-configure"
+                        enabled: miniPlayerSongNameFontCheckbox.checked
+                        onClicked: miniPlayerSongNameFontDialog.open()
+                    }
+
+                    Item { Layout.fillWidth: true } // Spacer
+
+                    Label {
+                        visible: miniPlayerSongNameFontCheckbox.checked
+                        text: i18n("Letter spacing:")
+                    }
+
+                    TextField {
+                        id: miniPlayerSongNameSpacingField
+                        visible: miniPlayerSongNameFontCheckbox.checked
+                        text: cfg_miniPlayerSongNameSpacing.toFixed(2)
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 4
+                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        validator: DoubleValidator { bottom: -20; top: 20; decimals: 2 }
+                        onTextChanged: {
+                            cfg_miniPlayerSongNameSpacing = validateSpacing(text)
+                        }
+                    }
+                }
+
+                CheckBox {
+                    id: miniPlayerSongNameCapitalize
+                    text: i18n("Capitalize text")
                     enabled: miniPlayerSongNameFontCheckbox.checked
-                    onClicked: miniPlayerSongNameFontDialog.open()
-                }
-
-                Label {
-                    visible: miniPlayerSongNameFontCheckbox.checked
-                    text: i18n("Letter spacing:")
-                }
-
-                SpinBox {
-                    id: miniPlayerSongNameSpacing
-                    visible: miniPlayerSongNameFontCheckbox.checked
-                    from: -5
-                    to: 20
-                    stepSize: 1
                 }
             }
 
-            Label {
-                visible: miniPlayerSongNameFontCheckbox.checked && miniPlayerSongNameFontDialog.fontChosen
-                text: i18n("Selected font: %1 %2pt", miniPlayerSongNameFontDialog.fontChosen.family,
-                          miniPlayerSongNameFontDialog.fontChosen.pointSize)
-                font: miniPlayerSongNameFontDialog.fontChosen
-            }
-        }
+            // Mini Player Artist Name (similar structure)
+            ColumnLayout {
+                // spacing: Kirigami.Units.smallSpacing
 
-        // Mini Player Artist Name (similar structure)
-        ColumnLayout {
-            Kirigami.FormData.label: i18n("Artist name:")
-            spacing: Kirigami.Units.smallSpacing
+                RowLayout {
+                    Label {
+                        text: i18n("Artist name:")
+                        font.weight: Font.ExtraBold
+                        opacity: 0.7
+                    }
 
-            RowLayout {
+                    Label {
+                        visible: miniPlayerArtistNameFontCheckbox.checked && miniPlayerArtistNameFontDialog.fontChosen
+                        text: i18n("%2pt, %1", miniPlayerArtistNameFontDialog.fontChosen.family,
+                                miniPlayerArtistNameFontDialog.fontChosen.pointSize)
+                        font: Qt.font({
+                            family: miniPlayerArtistNameFontDialog.fontChosen.family,
+                            pointSize: 12
+                        })
+                    }
+                }
+
+                RowLayout {
+                    spacing: Kirigami.Units.smallSpacing
+
+                    CheckBox {
+                        id: miniPlayerArtistNameFontCheckbox
+                        text: i18n("Use custom font")
+                    }
+
+                    Button {
+                        text: i18n("Choose font...")
+                        icon.name: "settings-configure"
+                        enabled: miniPlayerArtistNameFontCheckbox.checked
+                        onClicked: miniPlayerArtistNameFontDialog.open()
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    Label {
+                        visible: miniPlayerArtistNameFontCheckbox.checked
+                        text: i18n("Letter spacing:")
+                    }
+
+                    TextField {
+                        id: miniPlayerArtistNameSpacingField
+                        visible: miniPlayerArtistNameFontCheckbox.checked
+                        text: cfg_miniPlayerArtistNameSpacing.toFixed(2)
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 4
+                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        validator: DoubleValidator { bottom: -20; top: 20; decimals: 2 }
+                        onTextChanged: {
+                            cfg_miniPlayerArtistNameSpacing = validateSpacing(text)
+                        }
+                    }
+                }
+
                 CheckBox {
-                    id: miniPlayerArtistNameFontCheckbox
-                    text: i18n("Use custom font")
-                }
-
-                Button {
-                    text: i18n("Choose font...")
-                    icon.name: "settings-configure"
+                    id: miniPlayerArtistNameCapitalize
+                    text: i18n("Capitalize text")
                     enabled: miniPlayerArtistNameFontCheckbox.checked
-                    onClicked: miniPlayerArtistNameFontDialog.open()
                 }
 
-                Label {
-                    visible: miniPlayerArtistNameFontCheckbox.checked
-                    text: i18n("Letter spacing:")
-                }
-
-                SpinBox {
-                    id: miniPlayerArtistNameSpacing
-                    visible: miniPlayerArtistNameFontCheckbox.checked
-                    from: -5
-                    to: 20
-                    stepSize: 1
-                }
             }
+        }
+
+        // Full Player Font Settings header
+        ColumnLayout {
+            id: fullPlayerFontSettings
+            spacing: 20
 
             Label {
-                visible: miniPlayerArtistNameFontCheckbox.checked && miniPlayerArtistNameFontDialog.fontChosen
-                text: i18n("Selected font: %1 %2pt", miniPlayerArtistNameFontDialog.fontChosen.family,
-                          miniPlayerArtistNameFontDialog.fontChosen.pointSize)
-                font: miniPlayerArtistNameFontDialog.fontChosen
+                text: i18n("FULL PLAYER")
+                font.bold: true
+                font.pointSize: 10
+                font.letterSpacing: 2
+                opacity: 0.5
+                Layout.bottomMargin: -10
+                Layout.topMargin: 30
             }
-        }
 
-        // Full Player Font Settings
-        Label {
-            text: i18n("Full Player")
-            font.bold: true
-            Layout.topMargin: Kirigami.Units.largeSpacing * 2
-        }
+            ColumnLayout {
+                id: fullPlayerSongNameFontSettings
+                spacing: Kirigami.Units.smallSpacing
 
-        // Full Player Song Name (similar structure)
-        ColumnLayout {
-            Kirigami.FormData.label: i18n("Song name:")
-            spacing: Kirigami.Units.smallSpacing
+                RowLayout {
+                    Label {
+                        text: i18n("Song name:")
+                        font.weight: Font.ExtraBold
+                        opacity: 0.7
+                    }
 
-            RowLayout {
-                CheckBox {
-                    id: fullPlayerSongNameFontCheckbox
-                    text: i18n("Use custom font")
+                    Label {
+                        visible: fullPlayerSongNameFontCheckbox.checked && fullPlayerSongNameFontDialog.fontChosen
+                        text: i18n("%2pt, %1", fullPlayerSongNameFontDialog.fontChosen.family,
+                                fullPlayerSongNameFontDialog.fontChosen.pointSize)
+                        font: Qt.font({
+                            family: fullPlayerSongNameFontDialog.fontChosen.family,
+                            pointSize: 12
+                        })
+                    }
                 }
 
-                Button {
-                    text: i18n("Choose font...")
-                    icon.name: "settings-configure"
+                RowLayout {
+                    spacing: Kirigami.Units.smallSpacing
+
+                    CheckBox {
+                        id: fullPlayerSongNameFontCheckbox
+                        text: i18n("Use custom font")
+                    }
+
+                    Button {
+                        text: i18n("Choose font...")
+                        icon.name: "settings-configure"
+                        enabled: fullPlayerSongNameFontCheckbox.checked
+                        onClicked: fullPlayerSongNameFontDialog.open()
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    Label {
+                        visible: fullPlayerSongNameFontCheckbox.checked
+                        text: i18n("Letter spacing:")
+                    }
+
+                    TextField {
+                        id: fullPlayerSongNameSpacingField
+                        visible: fullPlayerSongNameFontCheckbox.checked
+                        text: cfg_fullPlayerSongNameSpacing.toFixed(2)
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 4
+                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        validator: DoubleValidator { bottom: -20; top: 20; decimals: 2 }
+                        onTextChanged: {
+                            cfg_fullPlayerSongNameSpacing = validateSpacing(text)
+                        }
+                    }
+                }
+
+                CheckBox {
+                    id: fullPlayerSongNameCapitalize
+                    text: i18n("Capitalize text")
                     enabled: fullPlayerSongNameFontCheckbox.checked
-                    onClicked: fullPlayerSongNameFontDialog.open()
-                }
-
-                Label {
-                    visible: fullPlayerSongNameFontCheckbox.checked
-                    text: i18n("Letter spacing:")
-                }
-
-                SpinBox {
-                    id: fullPlayerSongNameSpacing
-                    visible: fullPlayerSongNameFontCheckbox.checked
-                    from: -5
-                    to: 20
-                    stepSize: 1
                 }
             }
 
-            Label {
-                visible: fullPlayerSongNameFontCheckbox.checked && fullPlayerSongNameFontDialog.fontChosen
-                text: i18n("Selected font: %1 %2pt", fullPlayerSongNameFontDialog.fontChosen.family,
-                          fullPlayerSongNameFontDialog.fontChosen.pointSize)
-                font: fullPlayerSongNameFontDialog.fontChosen
-            }
-        }
+            // Full Player Artist Name
+            ColumnLayout {
+                spacing: Kirigami.Units.smallSpacing
 
-        // Full Player Artist Name (similar structure)
-        ColumnLayout {
-            Kirigami.FormData.label: i18n("Artist name:")
-            spacing: Kirigami.Units.smallSpacing
+                RowLayout {
+                    Label {
+                        text: i18n("Artist name:")
+                        font.weight: Font.ExtraBold
+                        opacity: 0.7
+                    }
 
-            RowLayout {
+                    Label {
+                        visible: fullPlayerArtistNameFontCheckbox.checked && fullPlayerArtistNameFontDialog.fontChosen
+                        text: i18n("%2pt, %1", fullPlayerArtistNameFontDialog.fontChosen.family,
+                                fullPlayerArtistNameFontDialog.fontChosen.pointSize)
+                        font: Qt.font({
+                            family: fullPlayerArtistNameFontDialog.fontChosen.family,
+                            pointSize: 12
+                        })
+                    }
+                }
+
+                RowLayout {
+                    spacing: Kirigami.Units.smallSpacing
+
+                    CheckBox {
+                        id: fullPlayerArtistNameFontCheckbox
+                        text: i18n("Use custom font")
+                    }
+
+                    Button {
+                        text: i18n("Choose font...")
+                        icon.name: "settings-configure"
+                        enabled: fullPlayerArtistNameFontCheckbox.checked
+                        onClicked: fullPlayerArtistNameFontDialog.open()
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    Label {
+                        visible: fullPlayerArtistNameFontCheckbox.checked
+                        text: i18n("Letter spacing:")
+                    }
+
+                    TextField {
+                        id: fullPlayerArtistNameSpacingField
+                        visible: fullPlayerArtistNameFontCheckbox.checked
+                        text: cfg_fullPlayerArtistNameSpacing.toFixed(2)
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 4
+                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        validator: DoubleValidator { bottom: -20; top: 20; decimals: 2 }
+                        onTextChanged: {
+                            cfg_fullPlayerArtistNameSpacing = validateSpacing(text)
+                        }
+                    }
+                }
+
                 CheckBox {
-                    id: fullPlayerArtistNameFontCheckbox
-                    text: i18n("Use custom font")
-                }
-
-                Button {
-                    text: i18n("Choose font...")
-                    icon.name: "settings-configure"
+                    id: fullPlayerArtistNameCapitalize
+                    text: i18n("Capitalize text")
                     enabled: fullPlayerArtistNameFontCheckbox.checked
-                    onClicked: fullPlayerArtistNameFontDialog.open()
-                }
-
-                Label {
-                    visible: fullPlayerArtistNameFontCheckbox.checked
-                    text: i18n("Letter spacing:")
-                }
-
-                SpinBox {
-                    id: fullPlayerArtistNameSpacing
-                    visible: fullPlayerArtistNameFontCheckbox.checked
-                    from: -5
-                    to: 20
-                    stepSize: 1
                 }
             }
 
-            Label {
-                visible: fullPlayerArtistNameFontCheckbox.checked && fullPlayerArtistNameFontDialog.fontChosen
-                text: i18n("Selected font: %1 %2pt", fullPlayerArtistNameFontDialog.fontChosen.family,
-                          fullPlayerArtistNameFontDialog.fontChosen.pointSize)
-                font: fullPlayerArtistNameFontDialog.fontChosen
-            }
-        }
+            // Timer Font Settings
+            ColumnLayout {
+                spacing: Kirigami.Units.smallSpacing
 
-        // Timer Font Settings
-        ColumnLayout {
-            Kirigami.FormData.label: i18n("Timer:")
-            spacing: Kirigami.Units.smallSpacing
+                RowLayout {
+                    Label {
+                        text: i18n("Time labels:")
+                        font.weight: Font.ExtraBold
+                        opacity: 0.7
+                    }
 
-            RowLayout {
+                    Label {
+                        visible: timerFontCheckbox.checked && timerFontDialog.fontChosen
+                        text: i18n("%2pt, %1", timerFontDialog.fontChosen.family,
+                                timerFontDialog.fontChosen.pointSize)
+                        font: Qt.font({
+                            family: timerFontDialog.fontChosen.family,
+                            pointSize: 12
+                        })
+                    }
+                }
+
+                RowLayout {
+                    spacing: Kirigami.Units.smallSpacing
+
+                    CheckBox {
+                        id: timerFontCheckbox
+                        text: i18n("Use custom font")
+                    }
+
+                    Button {
+                        text: i18n("Choose font...")
+                        icon.name: "settings-configure"
+                        enabled: timerFontCheckbox.checked
+                        onClicked: timerFontDialog.open()
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    Label {
+                        visible: timerFontCheckbox.checked
+                        text: i18n("Letter spacing:")
+                    }
+
+                    TextField {
+                        id: timerSpacingField
+                        visible: timerFontCheckbox.checked
+                        text: cfg_timerSpacing.toFixed(2)
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 4
+                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        validator: DoubleValidator { bottom: -20; top: 20; decimals: 2 }
+                        onTextChanged: {
+                            cfg_timerSpacing = validateSpacing(text)
+                        }
+                    }
+                }
+
                 CheckBox {
-                    id: timerFontCheckbox
-                    text: i18n("Use custom font")
-                }
-
-                Button {
-                    text: i18n("Choose font...")
-                    icon.name: "settings-configure"
+                    id: timerCapitalize
+                    text: i18n("Capitalize text")
                     enabled: timerFontCheckbox.checked
-                    onClicked: timerFontDialog.open()
+                    visible: false
                 }
-
-                Label {
-                    visible: timerFontCheckbox.checked
-                    text: i18n("Letter spacing:")
-                }
-
-                SpinBox {
-                    id: timerSpacing
-                    visible: timerFontCheckbox.checked
-                    from: -5
-                    to: 20
-                    stepSize: 1
-                }
-            }
-
-            Label {
-                visible: timerFontCheckbox.checked && timerFontDialog.fontChosen
-                text: i18n("Selected font: %1 %2pt", timerFontDialog.fontChosen.family,
-                          timerFontDialog.fontChosen.pointSize)
-                font: timerFontDialog.fontChosen
             }
         }
 
-        // Font dialogs
+
+        // Font dialogs remain the same as before
         QtDialogs.FontDialog {
             id: miniPlayerSongNameFontDialog
             title: i18n("Choose Mini Player Song Name Font")
