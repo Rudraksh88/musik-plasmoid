@@ -252,6 +252,7 @@ Item {
                     pointSize: timeFont.pointSize,
                     features: { "tnum": 1 },
                     family: timeFont.family,
+                    weight: timeFont.weight,
                     letterSpacing: timeFont.letterSpacing
                 })
                 opacity: 1
@@ -259,7 +260,7 @@ Item {
 
             PlasmaComponents3.Label {
                 Layout.alignment: Qt.AlignRight
-                text: timeLabels.formatDuration(container.songLength - container.songPosition)
+                text: '-' + timeLabels.formatDuration(container.songLength - container.songPosition)
                 // font: Qt.font({
                 //     pointSize: 10.5,
                 //     features: { "tnum": 1 }
@@ -268,8 +269,10 @@ Item {
                     pointSize: timeFont.pointSize,
                     features: { "tnum": 1 },
                     family: timeFont.family,
+                    weight: timeFont.weight,
                     letterSpacing: timeFont.letterSpacing
                 })
+                color: "#A8FFFFFF"
                 opacity: 0.7
             }
         }

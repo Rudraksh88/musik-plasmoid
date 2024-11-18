@@ -81,9 +81,11 @@ PlasmoidItem {
                                 Font.AllUppercase : Font.MixedCase
             return font
         }
+        // return Kirigami.Theme.defaultFont
         return Qt.font({
-            family: 'Hubot Sans Condensed ExtraBold',
-            pixelSize: 28
+            family: Kirigami.Theme.defaultFont.family,
+            pixelSize: 28,
+            weight: Font.Black
         })
     }
 
@@ -95,12 +97,7 @@ PlasmoidItem {
                                 Font.AllUppercase : Font.MixedCase
             return font
         }
-        return Qt.font({
-            family: 'Hubot Sans Condensed ExtraBold',
-            weight: Font.Black,
-            capitalization: Font.AllUppercase,
-            pixelSize: 19
-        })
+        return Kirigami.Theme.defaultFont
     }
 
     readonly property font timerFont: {
