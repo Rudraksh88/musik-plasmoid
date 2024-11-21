@@ -35,13 +35,13 @@ Item {
 
     QtObject {
         id: mediaSources
-        readonly property string brave:   Qt.resolvedUrl("icons/brave_mono.svg")
-        readonly property string chrome:  Qt.resolvedUrl("icons/chrome_mono.svg")
-        readonly property string fooyin:  Qt.resolvedUrl("icons/spotify_mono.svg")
-        readonly property string firefox: Qt.resolvedUrl("icons/firefox_mono.svg")
-        readonly property string ytMusic: Qt.resolvedUrl("icons/yt_music_mono.svg")
-        readonly property string music:   Qt.resolvedUrl("icons/music_mono.svg")
-        readonly property string spotify: Qt.resolvedUrl("icons/spotify_mono.svg")
+        readonly property string brave:   Qt.resolvedUrl("assets/brave_mono.svg")
+        readonly property string chrome:  Qt.resolvedUrl("assets/chrome_mono.svg")
+        readonly property string fooyin:  Qt.resolvedUrl("assets/spotify_mono.svg")
+        readonly property string firefox: Qt.resolvedUrl("assets/firefox_mono.svg")
+        readonly property string ytMusic: Qt.resolvedUrl("assets/yt_music_mono.svg")
+        readonly property string music:   Qt.resolvedUrl("assets/music_mono.svg")
+        readonly property string spotify: Qt.resolvedUrl("assets/spotify_mono.svg")
     }
 
     Kirigami.Icon {

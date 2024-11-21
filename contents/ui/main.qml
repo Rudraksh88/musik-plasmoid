@@ -39,15 +39,15 @@ PlasmoidItem {
 
     QtObject {
         id: iconSources
-        readonly property string shuffleOn:  Qt.resolvedUrl("icons/shuffle_on.svg")
-        readonly property string shuffleOff: Qt.resolvedUrl("icons/shuffle_off.svg")
-        readonly property string repeatTrack:Qt.resolvedUrl("icons/repeat_track.svg")
-        readonly property string repeatAll:  Qt.resolvedUrl("icons/repeat_all.svg")
-        readonly property string repeatOff:  Qt.resolvedUrl("icons/repeat_off.svg")
-        readonly property string play:       Qt.resolvedUrl("icons/play.svg")
-        readonly property string pause:      Qt.resolvedUrl("icons/pause.svg")
-        readonly property string prev:       Qt.resolvedUrl("icons/prev_track.svg")
-        readonly property string next:       Qt.resolvedUrl("icons/next_track.svg")
+        readonly property string shuffleOn:  Qt.resolvedUrl("assets/shuffle_on.svg")
+        readonly property string shuffleOff: Qt.resolvedUrl("assets/shuffle_off.svg")
+        readonly property string repeatTrack:Qt.resolvedUrl("assets/repeat_track.svg")
+        readonly property string repeatAll:  Qt.resolvedUrl("assets/repeat_all.svg")
+        readonly property string repeatOff:  Qt.resolvedUrl("assets/repeat_off.svg")
+        readonly property string play:       Qt.resolvedUrl("assets/play.svg")
+        readonly property string pause:      Qt.resolvedUrl("assets/pause.svg")
+        readonly property string prev:       Qt.resolvedUrl("assets/prev_track.svg")
+        readonly property string next:       Qt.resolvedUrl("assets/next_track.svg")
     }
 
     // Mini Player font properties
@@ -565,8 +565,7 @@ PlasmoidItem {
                 Image {
                     id: albumArt
                     anchors.fill: parent
-                    visible: player.artUrl
-                    source: player.artUrl
+                    source: player.artUrl || Qt.resolvedUrl("assets/default_album_art.svg")
                     fillMode: Image.PreserveAspectFit
 
                     // onSourceChanged: {
