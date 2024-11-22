@@ -6,7 +6,6 @@ import org.kde.plasma.plasmoid
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.private.mpris as Mpris
-import 'code/color-thief.min.js' as ColorThief
 
 PlasmoidItem {
     id: widget
@@ -343,35 +342,396 @@ PlasmoidItem {
         return oklch.c <= chromaThreshold;
     }
 
-    // Get the most dominant color from image data
-    function getDominantColor(imageData) {
-        const colorMap = new Map(); // Store color frequencies
-        const data = imageData.data;
+    function rgbToHsl(r, g, b) {
+        r /= 255;
+        g /= 255;
+        b /= 255;
 
-        for (let i = 0; i < data.length; i += 4) {
-            if (data[i + 3] < 125) continue; // Skip transparent pixels
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const chroma = max - min;
 
-            // Quantize colors to reduce the number of unique colors
-            const r = Math.round(data[i] / 8) * 8;
-            const g = Math.round(data[i + 1] / 8) * 8;
-            const b = Math.round(data[i + 2] / 8) * 8;
-
-            const key = `${r},${g},${b}`;
-            colorMap.set(key, (colorMap.get(key) || 0) + 1);
-        }
-
-        // Find the most frequent color
-        let maxCount = 0;
-        let dominantColor = null;
-
-        for (const [color, count] of colorMap) {
-            if (count > maxCount) {
-                maxCount = count;
-                dominantColor = color.split(',').map(Number);
+        let h = 0;
+        if (chroma !== 0) {
+            if (max === r) {
+                h = ((g - b) / chroma) % 6;
+            } else if (max === g) {
+                h = ((b - r) / chroma) + 2;
+            } else {
+                h = ((r - g) / chroma) + 4;
             }
         }
 
-        return dominantColor; // Returns [r, g, b]
+        h = Math.round(h * 60);
+        if (h < 0) h += 360;
+
+        const l = (max + min) / 2;
+        const s = chroma === 0 ? 0 : chroma / (1 - Math.abs(2 * l - 1));
+
+        return [h, s, l];
+    }
+
+    function hslToRgb(h, s, l) {
+        const chroma = (1 - Math.abs(2 * l - 1)) * s;
+        const h_ = h / 60;
+        const x = chroma * (1 - Math.abs(h_ % 2 - 1));
+        const m = l - chroma / 2;
+
+        let r = 0, g = 0, b = 0;
+        if (h_ >= 0 && h_ < 1) {
+            r = chroma;
+            g = x;
+        } else if (h_ >= 1 && h_ < 2) {
+            r = x;
+            g = chroma;
+        } else if (h_ >= 2 && h_ < 3) {
+            g = chroma;
+            b = x;
+        } else if (h_ >= 3 && h_ < 4) {
+            g = x;
+            b = chroma;
+        } else if (h_ >= 4 && h_ < 5) {
+            r = x;
+            b = chroma;
+        } else {
+            r = chroma;
+            b = x;
+        }
+
+        r = (r + m) * 255;
+        g = (g + m) * 255;
+        b = (b + m) * 255;
+
+        return [r, g, b];
+    }
+
+    // K-means implementation for color clustering
+    function kMeansColors(pixels, k = 5, maxIterations = 10) {
+        // Initialize centroids randomly from the pixel data
+        let centroids = [];
+        let pixelCount = pixels.length / 4;
+        for (let i = 0; i < k; i++) {
+            let randomIndex = Math.floor(Math.random() * pixelCount) * 4;
+            centroids.push([
+                pixels[randomIndex],
+                pixels[randomIndex + 1],
+                pixels[randomIndex + 2]
+            ]);
+        }
+
+        // Main k-means loop
+        let clusters = new Array(pixelCount);
+        let iterations = 0;
+        let changed = true;
+
+        while (changed && iterations < maxIterations) {
+            changed = false;
+            // Assign pixels to nearest centroid
+            for (let i = 0; i < pixelCount; i++) {
+                if (pixels[i * 4 + 3] < 125) continue; // Skip transparent pixels
+
+                let minDistance = Infinity;
+                let clusterIndex = 0;
+
+                for (let j = 0; j < k; j++) {
+                    let distance = colorDistance(
+                        [pixels[i * 4], pixels[i * 4 + 1], pixels[i * 4 + 2]],
+                        centroids[j]
+                    );
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        clusterIndex = j;
+                    }
+                }
+
+                if (clusters[i] !== clusterIndex) {
+                    changed = true;
+                    clusters[i] = clusterIndex;
+                }
+            }
+
+            // Update centroids
+            let sums = Array(k).fill().map(() => [0, 0, 0]);
+            let counts = Array(k).fill(0);
+
+            for (let i = 0; i < pixelCount; i++) {
+                if (pixels[i * 4 + 3] < 125) continue;
+                let cluster = clusters[i];
+                sums[cluster][0] += pixels[i * 4];
+                sums[cluster][1] += pixels[i * 4 + 1];
+                sums[cluster][2] += pixels[i * 4 + 2];
+                counts[cluster]++;
+            }
+
+            for (let i = 0; i < k; i++) {
+                if (counts[i] > 0) {
+                    centroids[i] = [
+                        Math.round(sums[i][0] / counts[i]),
+                        Math.round(sums[i][1] / counts[i]),
+                        Math.round(sums[i][2] / counts[i])
+                    ];
+                }
+            }
+
+            iterations++;
+        }
+
+        // Return centroids and their counts
+        let clusterSizes = Array(k).fill(0);
+        for (let i = 0; i < pixelCount; i++) {
+            if (clusters[i] !== undefined) {
+                clusterSizes[clusters[i]]++;
+            }
+        }
+
+        return {
+            centroids: centroids,
+            sizes: clusterSizes
+        };
+    }
+
+    // Color distance function using weighted RGB
+    function colorDistance(color1, color2) {
+        const rWeight = 0.299;
+        const gWeight = 0.587;
+        const bWeight = 0.114;
+
+        return Math.sqrt(
+            rWeight * Math.pow(color1[0] - color2[0], 2) +
+            gWeight * Math.pow(color1[1] - color2[1], 2) +
+            bWeight * Math.pow(color1[2] - color2[2], 2)
+        );
+    }
+
+    // Median cut implementation for color quantization
+    function medianCut(pixels, depth = 2) {
+        if (depth === 0 || pixels.length === 0) {
+            let r = 0, g = 0, b = 0, count = 0;
+            for (let i = 0; i < pixels.length; i += 4) {
+                if (pixels[i + 3] < 125) continue;
+                r += pixels[i];
+                g += pixels[i + 1];
+                b += pixels[i + 2];
+                count++;
+            }
+            if (count === 0) return null;
+            return {
+                color: [
+                    Math.round(r / count),
+                    Math.round(g / count),
+                    Math.round(b / count)
+                ],
+                count: count
+            };
+        }
+
+        let rMin = 255, rMax = 0, gMin = 255, gMax = 0, bMin = 255, bMax = 0;
+        for (let i = 0; i < pixels.length; i += 4) {
+            if (pixels[i + 3] < 125) continue;
+            rMin = Math.min(rMin, pixels[i]);
+            rMax = Math.max(rMax, pixels[i]);
+            gMin = Math.min(gMin, pixels[i + 1]);
+            gMax = Math.max(gMax, pixels[i + 1]);
+            bMin = Math.min(bMin, pixels[i + 2]);
+            bMax = Math.max(bMax, pixels[i + 2]);
+        }
+
+        let rRange = rMax - rMin;
+        let gRange = gMax - gMin;
+        let bRange = bMax - bMin;
+
+        let maxRange = Math.max(rRange, gRange, bRange);
+        let channel = maxRange === rRange ? 0 : maxRange === gRange ? 1 : 2;
+
+        let sortedPixels = [];
+        for (let i = 0; i < pixels.length; i += 4) {
+            if (pixels[i + 3] < 125) continue;
+            sortedPixels.push([
+                pixels[i],
+                pixels[i + 1],
+                pixels[i + 2],
+                pixels[i + 3],
+                pixels[i + channel]
+            ]);
+        }
+        sortedPixels.sort((a, b) => a[4] - b[4]);
+
+        let median = Math.floor(sortedPixels.length / 2);
+        let left = new Uint8Array(median * 4);
+        let right = new Uint8Array((sortedPixels.length - median) * 4);
+
+        for (let i = 0; i < median; i++) {
+            left[i * 4] = sortedPixels[i][0];
+            left[i * 4 + 1] = sortedPixels[i][1];
+            left[i * 4 + 2] = sortedPixels[i][2];
+            left[i * 4 + 3] = sortedPixels[i][3];
+        }
+
+        for (let i = 0; i < sortedPixels.length - median; i++) {
+            right[i * 4] = sortedPixels[i + median][0];
+            right[i * 4 + 1] = sortedPixels[i + median][1];
+            right[i * 4 + 2] = sortedPixels[i + median][2];
+            right[i * 4 + 3] = sortedPixels[i + median][3];
+        }
+
+        return [
+            medianCut(left, depth - 1),
+            medianCut(right, depth - 1)
+        ].filter(x => x !== null);
+    }
+
+    function getDominantColor(imageData) {
+        const downsampleFactor = 4;
+        const data = imageData.data;
+        const sampledData = new Uint8Array(Math.ceil(data.length / downsampleFactor));
+
+        for (let i = 0, j = 0; i < data.length; i += 4 * downsampleFactor, j += 4) {
+            sampledData[j] = data[i];
+            sampledData[j + 1] = data[i + 1];
+            sampledData[j + 2] = data[i + 2];
+            sampledData[j + 3] = data[i + 3];
+        }
+
+        const palette = medianCut(sampledData, 3);
+
+        // Track both dominant and vibrant colors
+        let bestColor = null;
+        let bestScore = -1;
+        let mostVibrantColor = null;
+        let highestChroma = -1;
+
+        function isColorTooHarsh(r, g, b) {
+            // Check for extremely saturated reds
+            if (r > 230 && g < 100 && b < 100) return true;
+
+            const maxChannel = Math.max(r, g, b);
+            const minChannel = Math.min(r, g, b);
+            const midChannel = r + g + b - maxChannel - minChannel;
+
+            // If the difference between max and mid channels is too high
+            if (maxChannel - midChannel > 150) return true;
+
+            // If one channel is extremely high and others are very low
+            if (maxChannel > 240 && midChannel < 100) return true;
+
+            return false;
+        }
+
+        function getColorScore(oklch, size) {
+            const isRed = (oklch.h >= 20 && oklch.h <= 40);
+            const maxChromaForHue = isRed ? 0.25 : 0.3;
+
+            // Base score components
+            const chromaScore = Math.pow(oklch.c / maxChromaForHue, 1.2);
+            const lightnessScore = 1 - Math.abs(0.65 - oklch.l);
+            const sizeScore = Math.log(size + 1) / Math.log(1000); // Logarithmic scaling for size
+
+            // Bonus for colors that are saturated but not harsh
+            const sweetSpotChroma = isRed ? 0.18 : 0.22;
+            const chromaBonus = oklch.c >= sweetSpotChroma ? 1.32 : 1.0;
+
+            return sizeScore * chromaScore * lightnessScore * chromaBonus;
+        }
+
+        const processPalette = (colors) => {
+            if (!Array.isArray(colors)) {
+                const color = colors.color;
+                const size = colors.count;
+
+                // Skip obviously harsh colors
+                if (isColorTooHarsh(color[0], color[1], color[2])) return;
+
+                const oklch = rgbToOKLCH(color[0], color[1], color[2]);
+
+                // Basic viability checks
+                if (oklch.l < 0.2 || oklch.l > 0.85) return;
+
+                const isRed = (oklch.h >= 20 && oklch.h <= 40);
+                const maxChromaForHue = isRed ? 0.25 : 0.3;
+
+                // Track the most vibrant color that's not too harsh
+                if (oklch.c > highestChroma && oklch.c <= maxChromaForHue) {
+                    mostVibrantColor = {
+                        color: color,
+                        oklch: oklch,
+                        size: size
+                    };
+                    highestChroma = oklch.c;
+                }
+
+                // Calculate score for dominant color selection
+                const score = getColorScore(oklch, size);
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestColor = {
+                        color: color,
+                        oklch: oklch,
+                        size: size
+                    };
+                }
+            } else {
+                colors.forEach(processPalette);
+            }
+        };
+
+        processPalette(palette);
+
+        if (!bestColor && !mostVibrantColor) {
+            return [255, 255, 255];
+        }
+
+        // Smart color selection
+        let finalColor;
+        if (bestColor && mostVibrantColor) {
+            // If the most vibrant color is significantly more vibrant and has decent presence
+            if (mostVibrantColor.oklch.c > bestColor.oklch.c * 1.2 &&
+                mostVibrantColor.size * 2 > bestColor.size * 0.3) {
+                finalColor = mostVibrantColor;
+            } else {
+                finalColor = bestColor;
+            }
+        } else {
+            finalColor = bestColor || mostVibrantColor;
+        }
+
+        // Enhance the selected color
+        const isRed = (finalColor.oklch.h >= 20 && finalColor.oklch.h <= 40);
+        const maxFinalChroma = isRed ? 0.25 : 0.3;
+
+        // Smart enhancement based on current chroma
+        let chromaMultiplier = 1.2;
+        if (finalColor.oklch.c < 0.1) {
+            chromaMultiplier = 1.8; // Boost more if current chroma is low
+        } else if (finalColor.oklch.c > 0.2) {
+            chromaMultiplier = 1.1; // Boost less if already quite saturated
+        }
+
+        const enhancedRgb = oklchToRGB(
+            0.72,
+            Math.min(maxFinalChroma, finalColor.oklch.c * chromaMultiplier),
+            finalColor.oklch.h
+        );
+
+        // Final safety check
+        if (isColorTooHarsh(enhancedRgb[0], enhancedRgb[1], enhancedRgb[2])) {
+            return oklchToRGB(
+                0.75,
+                Math.min(0.2, finalColor.oklch.c),
+                finalColor.oklch.h
+            );
+        }
+
+        // If saturation is less than 0.2, boost it to 0.3
+        // if (rgbToHsl(enhancedRgb[0], enhancedRgb[1], enhancedRgb[2])[1] < 0.2) {
+        //     console.log("Boosting saturation",);
+        //     let newhsl = rgbToHsl(enhancedRgb[0], enhancedRgb[1], enhancedRgb[2]);
+        //     let newenhancedRgb = hslToRgb(newhsl[0], 0.3, newhsl[2]);
+
+        //     return [newenhancedRgb[0], newenhancedRgb[1], newenhancedRgb[2]];
+        // }
+
+        return enhancedRgb;
     }
 
     // Check if image is predominantly gray
@@ -434,76 +794,36 @@ PlasmoidItem {
             if (hiddenImage.status === Image.Ready) {
                 var ctx = getContext('2d');
                 ctx.drawImage(hiddenImage, 0, 0, width, height);
-
-                // Get image data
                 var imageData = ctx.getImageData(0, 0, width, height);
 
-                // Calculate average color first
-                var r = 0, g = 0, b = 0;
-                var count = 0;
-                var data = imageData.data;
+                // Get dominant color using k-means
+                var dominantRgb = getDominantColor(imageData);
 
-                for(var i = 0; i < data.length; i += 4) {
-                    if (data[i + 3] >= 125) {
-                        r += data[i];
-                        g += data[i + 1];
-                        b += data[i + 2];
-                        count++;
-                    }
-                }
+                // Convert to OKLCH for adjustment
+                var dominantOklch = rgbToOKLCH(dominantRgb[0], dominantRgb[1], dominantRgb[2]);
 
-                if (count > 0) {
-                    r = Math.round(r / count);
-                    g = Math.round(g / count);
-                    b = Math.round(b / count);
+                // Adjust the color for UI use
+                var adjustedRgb = oklchToRGB(
+                    0.75,                         // Fixed lightness for UI
+                    Math.min(0.3, dominantOklch.c * 1.2), // Boost chroma but cap it
+                    dominantOklch.h              // Keep original hue
+                );
 
-                    var avgOklch = rgbToOKLCH(r, g, b);
+                widget.dominantColor = Qt.rgba(
+                    adjustedRgb[0]/255,
+                    adjustedRgb[1]/255,
+                    adjustedRgb[2]/255,
+                    1.0
+                );
 
-                    // Decision tree based on average color's chroma
-                    if (avgOklch.c > 0.09) { // More than 30% chroma
-                        // Use OKLCH chroma technique
-                        var adjustedRgb = oklchToRGB(
-                            0.75,           // 75% lightness
-                            Math.min(0.3, avgOklch.c * 1.2), // Boost chroma but cap it
-                            avgOklch.h      // Keep original hue
-                        );
-                    }
-                    else if (avgOklch.c > 0.06) { // 30-49% chroma
-                        if (isImageMostlyGray(imageData)) {
-                            // Use 60% white
-                            widget.dominantColor = Qt.rgba(0.6, 0.6, 0.6, 1.0);
-                            return;
-                        }
-                        // Get and enhance dominant color
-                        var dominantRgb = getDominantColor(imageData);
-                        var dominantOklch = rgbToOKLCH(dominantRgb[0], dominantRgb[1], dominantRgb[2]);
+                // Debug print the dominant color
+                console.log("Dominant color:");
+                prettyPrintColor(dominantRgb);
 
-                        adjustedRgb = oklchToRGB(
-                            0.75,          // 75% lightness
-                            0.225,         // 75% saturation (0.3 * 0.75)
-                            dominantOklch.h // Keep dominant color's hue
-                        );
-                    }
-                    else {
-                        // Use average color and saturate
-                        adjustedRgb = oklchToRGB(
-                            0.75,          // 75% lightness
-                            0.225,         // 75% saturation
-                            avgOklch.h     // Keep average color's hue
-                        );
-                    }
 
-                    widget.dominantColor = Qt.rgba(
-                        adjustedRgb[0]/255,
-                        adjustedRgb[1]/255,
-                        adjustedRgb[2]/255,
-                        1.0
-                    );
+                console.log("Adjusted color:");
+                prettyPrintColor(adjustedRgb);
 
-                    console.log("Average OKLCH:", avgOklch.l, avgOklch.c, avgOklch.h);
-                    console.log("Final color:", adjustedRgb);
-                    prettyPrintColor(adjustedRgb);
-                }
             }
         }
     }
