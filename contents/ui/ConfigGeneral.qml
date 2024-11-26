@@ -140,8 +140,8 @@ KCM.SimpleKCM {
 
                     Label {
                         visible: miniPlayerSongNameFontCheckbox.checked && miniPlayerSongNameFontDialog.fontChosen
-                        text: i18n("%2pt, %1", miniPlayerSongNameFontDialog.fontChosen.family,
-                                miniPlayerSongNameFontDialog.fontChosen.pointSize)
+                        text: i18n("%2pt, %3, %1", miniPlayerSongNameFontDialog.fontChosen.family,
+                                miniPlayerSongNameFontDialog.fontChosen.pointSize, miniPlayerSongNameFontDialog.fontChosen.styleName)
                         font: Qt.font({
                             family: miniPlayerSongNameFontDialog.fontChosen.family,
                             pointSize: 12
@@ -204,8 +204,8 @@ KCM.SimpleKCM {
 
                     Label {
                         visible: miniPlayerArtistNameFontCheckbox.checked && miniPlayerArtistNameFontDialog.fontChosen
-                        text: i18n("%2pt, %1", miniPlayerArtistNameFontDialog.fontChosen.family,
-                                miniPlayerArtistNameFontDialog.fontChosen.pointSize)
+                        text: i18n("%2pt, %3, %1", miniPlayerArtistNameFontDialog.fontChosen.family,
+                                miniPlayerArtistNameFontDialog.fontChosen.pointSize, miniPlayerArtistNameFontDialog.fontChosen.styleName)
                         font: Qt.font({
                             family: miniPlayerArtistNameFontDialog.fontChosen.family,
                             pointSize: 12
@@ -285,8 +285,8 @@ KCM.SimpleKCM {
 
                     Label {
                         visible: fullPlayerSongNameFontCheckbox.checked && fullPlayerSongNameFontDialog.fontChosen
-                        text: i18n("%2pt, %1", fullPlayerSongNameFontDialog.fontChosen.family,
-                                fullPlayerSongNameFontDialog.fontChosen.pointSize)
+                        text: i18n("%2pt, %3, %1", fullPlayerSongNameFontDialog.fontChosen.family,
+                                fullPlayerSongNameFontDialog.fontChosen.pointSize, fullPlayerSongNameFontDialog.fontChosen.styleName)
                         font: Qt.font({
                             family: fullPlayerSongNameFontDialog.fontChosen.family,
                             pointSize: 12
@@ -349,8 +349,8 @@ KCM.SimpleKCM {
 
                     Label {
                         visible: fullPlayerArtistNameFontCheckbox.checked && fullPlayerArtistNameFontDialog.fontChosen
-                        text: i18n("%2pt, %1", fullPlayerArtistNameFontDialog.fontChosen.family,
-                                fullPlayerArtistNameFontDialog.fontChosen.pointSize)
+                        text: i18n("%2pt, %3, %1", fullPlayerArtistNameFontDialog.fontChosen.family,
+                                fullPlayerArtistNameFontDialog.fontChosen.pointSize, fullPlayerArtistNameFontDialog.fontChosen.styleName)
                         font: Qt.font({
                             family: fullPlayerArtistNameFontDialog.fontChosen.family,
                             pointSize: 12
@@ -413,8 +413,8 @@ KCM.SimpleKCM {
 
                     Label {
                         visible: timerFontCheckbox.checked && timerFontDialog.fontChosen
-                        text: i18n("%2pt, %1", timerFontDialog.fontChosen.family,
-                                timerFontDialog.fontChosen.pointSize)
+                        text: i18n("%2pt, %3, %1", timerFontDialog.fontChosen.family,
+                                timerFontDialog.fontChosen.pointSize, timerFontDialog.fontChosen.styleName)
                         font: Qt.font({
                             family: timerFontDialog.fontChosen.family,
                             pointSize: 12
