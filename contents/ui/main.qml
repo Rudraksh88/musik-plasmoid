@@ -860,11 +860,15 @@ PlasmoidItem {
 
             Rectangle {
                 id: imageContainer
-                Layout.alignment: Qt.AlignHCenter
+                // Layout.alignment: Qt.AlignHCenter
+                // Align to <- Horizontal Center -> and ↑ Top
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+
+
                 Layout.preferredWidth: Math.min(fullRep.width - 10, fullRep.height - 160)
                 Layout.preferredHeight: Layout.preferredWidth
-                Layout.topMargin: 4
-                Layout.bottomMargin: 10
+                Layout.topMargin: plasmoid.configuration.beforeAlbumCover
+                // Layout.bottomMargin: 10
                 color: "transparent"
 
                 // Add radius to the Rectangle
@@ -917,13 +921,6 @@ PlasmoidItem {
                 // horizontalAlignment: Text.AlignHCenter
 
                 speed: plasmoid.configuration.textScrollingSpeed
-                // font: Qt.font({
-                //     // family: widget.boldTextFont.family,
-                //     // family: 'Hubot Sans Expanded ExtraBold',
-                //     family: 'Hubot Sans Condensed ExtraBold',
-                //     // weight: Font.Black,
-                //     pixelSize: 28
-                // })
                 font: widget.fullPlayerSongNameFont
                 maxWidth: imageContainer.width
                 text: player.title
@@ -936,9 +933,10 @@ PlasmoidItem {
                 */
                 textColor: plasmoid.configuration.accentedSongName ? (plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : widget.dominantColor) : '#A8FFFFFF'
 
-                // Top margin to add some space between the title and the artist
-                Layout.topMargin: -5
-                Layout.bottomMargin:3
+                // Add margin before song name
+                Layout.topMargin: plasmoid.configuration.beforeSongName
+                // Add margin after song name
+                Layout.bottomMargin: plasmoid.configuration.afterSongName
             }
 
             ScrollingText {
@@ -946,14 +944,6 @@ PlasmoidItem {
                 Layout.preferredWidth: Math.min(imageContainer.width, maxWidth)
 
                 speed: plasmoid.configuration.textScrollingSpeed
-                // font: Qt.font({
-                //     // family: 'Hubot Sans Condensed',
-                //     family: 'Hubot Sans Condensed ExtraBold',
-                //     weight: Font.Black,
-                //     capitalization: Font.AllUppercase,
-                //     pixelSize: 19,
-                //     // letterSpacing: 0.5
-                // })
                 font: widget.fullPlayerArtistNameFont
                 maxWidth: imageContainer.width
                 text: player.artists
@@ -967,21 +957,19 @@ PlasmoidItem {
                 */
                 textColor: plasmoid.configuration.accentedArtistName ? (plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : widget.dominantColor) : '#A8FFFFFF'
 
-                Layout.topMargin: -10
-                Layout.bottomMargin: -3
-
                 Connections {
                     target: widget
                     function onDominantColorChanged() {
                         console.log("Dominant color updated in ScrollingText:", widget.dominantColor);
                     }
                 }
+
+                // Add margin after artist name
+                Layout.bottomMargin: plasmoid.configuration.afterArtistName
             }
 
 
             TrackPositionSlider {
-                // Layout.leftMargin: 6
-                // Layout.rightMargin: 6
                 Layout.preferredWidth: imageContainer.width
                 Layout.alignment: Qt.AlignHCenter
 
@@ -1014,8 +1002,11 @@ PlasmoidItem {
                 // Set a fixed width instead of relative width
                 Layout.preferredWidth: Kirigami.Units.gridUnit * 16 // Adjust this value as needed
                 Layout.preferredHeight: playerControls.implicitHeight
-                Layout.topMargin: 10
-                Layout.bottomMargin: 25
+
+                // Add margins before and after player controls
+                Layout.topMargin: plasmoid.configuration.beforePlayerControls
+                Layout.bottomMargin: plasmoid.configuration.afterPlayerControls
+
                 Layout.alignment: Qt.AlignHCenter
 
 

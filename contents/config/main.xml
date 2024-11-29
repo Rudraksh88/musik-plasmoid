@@ -89,6 +89,26 @@
             <default>false</default>
         </entry>
 
+        <!-- Margin settings -->
+        <entry name="beforeAlbumCover" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="beforeSongName" type="Int"> <!-- Before text block -->
+            <default>0</default>
+        </entry>
+        <entry name="afterSongName" type="Int"> <!-- Middle of text block -->
+            <default>0</default>
+        </entry>
+        <entry name="afterArtistName" type="Int"> <!-- After of text block -->
+            <default>0</default>
+        </entry>
+        <entry name="beforePlayerControls" type="Int"> <!-- Before player controls -->
+            <default>0</default>
+        </entry>
+        <entry name="afterPlayerControls" type="Int"> <!-- After player controls -->
+            <default>0</default>
+        </entry>
+
 
         <entry name="panelIcon" type="string">
             <default>view-media-track</default>

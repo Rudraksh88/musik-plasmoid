@@ -60,6 +60,14 @@ KCM.SimpleKCM {
     property alias cfg_timerCapitalize: timerCapitalize.checked
     property double cfg_timerSpacing: 0.00
 
+    // Margin settings
+    property alias cfg_beforeAlbumCover: beforeAlbumCover.value
+    property alias cfg_beforeSongName: beforeSongName.value
+    property alias cfg_afterSongName: afterSongName.value
+    property alias cfg_afterArtistName: afterArtistName.value
+    property alias cfg_beforePlayerControls: beforePlayerControls.value
+    property alias cfg_afterPlayerControls: afterPlayerControls.value
+
     // Helper function to validate and format spacing input
     function validateSpacing(text) {
         if (text === "") return 0.00
@@ -651,6 +659,111 @@ KCM.SimpleKCM {
 
                 Layout.topMargin: -5
                 Layout.bottomMargin: 10
+            }
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: "Spacing"
+        }
+
+        // Description text
+        Label {
+            text: i18n("Adjust the vertical spacing between elements:")
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            opacity: 0.5
+            Layout.topMargin: 6
+            Layout.bottomMargin: 6
+        }
+
+        SpinBox {
+            id: beforeAlbumCover
+            from: -50
+            to: 100
+            stepSize: 1
+            Kirigami.FormData.label: i18n("Before album cover:")
+        }
+
+        // Text block margins
+        ColumnLayout {
+            Kirigami.FormData.label: i18n("Text block:")
+            spacing: 2
+
+            RowLayout {
+                spacing: Kirigami.Units.largeSpacing
+                Label {
+                    text: i18n("Before song name:")
+                    Layout.minimumWidth: 120
+                }
+                SpinBox {
+                    id: beforeSongName
+                    from: -50
+                    to: 100
+                    stepSize: 1
+                }
+            }
+
+            RowLayout {
+                spacing: Kirigami.Units.largeSpacing
+                Label {
+                    text: i18n("After song name:")
+                    Layout.minimumWidth: 120
+                }
+                SpinBox {
+                    id: afterSongName
+                    from: -50
+                    to: 100
+                    stepSize: 1
+                }
+            }
+
+            RowLayout {
+                spacing: Kirigami.Units.largeSpacing
+                Label {
+                    text: i18n("After artist name:")
+                    Layout.minimumWidth: 120
+                }
+                SpinBox {
+                    id: afterArtistName
+                    from: -50
+                    to: 100
+                    stepSize: 1
+                }
+            }
+        }
+
+        // Player controls margins
+        ColumnLayout {
+            Kirigami.FormData.label: i18n("Player controls:")
+            spacing: 2
+
+            RowLayout {
+                spacing: Kirigami.Units.largeSpacing
+                Label {
+                    text: i18n("Before controls:")
+                    Layout.minimumWidth: 120
+                }
+                SpinBox {
+                    id: beforePlayerControls
+                    from: -50
+                    to: 100
+                    stepSize: 1
+                }
+            }
+
+            RowLayout {
+                spacing: Kirigami.Units.largeSpacing
+                Label {
+                    text: i18n("After controls:")
+                    Layout.minimumWidth: 120
+                }
+                SpinBox {
+                    id: afterPlayerControls
+                    from: -50
+                    to: 100
+                    stepSize: 1
+                }
             }
         }
 
