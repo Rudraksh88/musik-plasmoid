@@ -483,6 +483,7 @@ KCM.SimpleKCM {
             id: miniPlayerSongNameFontDialog
             title: i18n("Choose Mini Player Song Name Font")
             property font fontChosen: Qt.font({})
+            selectedFont: fontChosen  // Initialize with saved font
             onAccepted: { fontChosen = selectedFont }
         }
 
@@ -490,6 +491,7 @@ KCM.SimpleKCM {
             id: miniPlayerArtistNameFontDialog
             title: i18n("Choose Mini Player Artist Name Font")
             property font fontChosen: Qt.font({})
+            selectedFont: fontChosen
             onAccepted: { fontChosen = selectedFont }
         }
 
@@ -497,6 +499,7 @@ KCM.SimpleKCM {
             id: fullPlayerSongNameFontDialog
             title: i18n("Choose Full Player Song Name Font")
             property font fontChosen: Qt.font({})
+            selectedFont: fontChosen
             onAccepted: { fontChosen = selectedFont }
         }
 
@@ -504,6 +507,7 @@ KCM.SimpleKCM {
             id: fullPlayerArtistNameFontDialog
             title: i18n("Choose Full Player Artist Name Font")
             property font fontChosen: Qt.font({})
+            selectedFont: fontChosen
             onAccepted: { fontChosen = selectedFont }
         }
 
@@ -511,6 +515,7 @@ KCM.SimpleKCM {
             id: timerFontDialog
             title: i18n("Choose Timer Font")
             property font fontChosen: Qt.font({})
+            selectedFont: fontChosen
             onAccepted: { fontChosen = selectedFont }
         }
 
