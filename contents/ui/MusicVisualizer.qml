@@ -143,4 +143,13 @@ Item {
             }
         }
     }
+
+    // Smooth color transition when accent color changes
+    Behavior on accentColor {
+        ColorAnimation {
+            duration: 200
+            easing.type: Easing.OutCubic
+        }
+    }
+
 }
