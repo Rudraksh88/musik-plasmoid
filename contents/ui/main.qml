@@ -1020,6 +1020,7 @@ PlasmoidItem {
                     isPlaying: player.playbackStatus === Mpris.PlaybackStatus.Playing
                     accentColor: widget.dominantColor
                     intensity: 0.5
+                    visible: plasmoid.configuration.audioVisualization
                 }
 
                 // Move existing player controls here

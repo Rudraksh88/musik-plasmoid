@@ -109,6 +109,10 @@
             <default>0</default>
         </entry>
 
+        <!-- Audio visualizer setting -->
+        <entry name="audioVisualization" type="Bool">
+            <default>true</default>
+        </entry>
 
         <entry name="panelIcon" type="string">
             <default>view-media-track</default>

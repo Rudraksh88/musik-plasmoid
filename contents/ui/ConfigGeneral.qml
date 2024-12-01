@@ -68,6 +68,9 @@ KCM.SimpleKCM {
     property alias cfg_beforePlayerControls: beforePlayerControls.value
     property alias cfg_afterPlayerControls: afterPlayerControls.value
 
+    // Audio visualization
+    property alias cfg_audioVisualization: audioVisualization.checked
+
     // Helper function to validate and format spacing input
     function validateSpacing(text) {
         if (text === "") return 0.00
@@ -765,6 +768,16 @@ KCM.SimpleKCM {
                     stepSize: 1
                 }
             }
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: "Audio Visualization"
+        }
+
+        CheckBox {
+            id: audioVisualization
+            text: i18n("Enable audio visualization")
         }
 
         Kirigami.Separator {
