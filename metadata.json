@@ -12,11 +12,14 @@
         "License": "GPL3",
         "Name": "MusiK Widget",
         "Version": "1.0.0",
-        "Category": "Multimedia"
+        "Category": "Multimedia",
+        "Description": "Music control widget with visualization"
     },
     "X-Plasma-API-Minimum-Version": "6.0",
     "X-Plasma-Provides": [
         "org.kde.plasma.multimediacontrols"
+    ],
+    "X-Plasma-RequiredExtensions": [
+        "WebEngine"
     ]
 }
-
