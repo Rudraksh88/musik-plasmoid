@@ -22,6 +22,11 @@ Item {
     readonly property real peakFallSpeed: 0.02
     readonly property real minHeight: 0.05
     readonly property real barSpacing: 2
+    readonly property real stopAnimationDuration: 1000 // Duration for the stopping animation in ms
+
+    // Track if we're in the stopping animation
+    property bool isStopping: false
+    property real stopProgress: 0
 
     // Generate harmonious secondary color
     readonly property color secondaryColor: {
@@ -35,6 +40,36 @@ Item {
             val * 0.95,
             1.0
         )
+    }
+
+    // Handle stopping animation
+    NumberAnimation {
+        id: stopAnimation
+        target: root
+        property: "stopProgress"
+        from: 0
+        to: 1
+        duration: stopAnimationDuration
+        easing.type: Easing.OutCubic
+        running: false
+
+        onFinished: {
+            isStopping = false
+            stopProgress = 0
+        }
+    }
+
+    // Monitor isPlaying changes
+    onIsPlayingChanged: {
+        if (!isPlaying) {
+            isStopping = true
+            stopAnimation.start()
+        } else {
+            time = 0
+            stopAnimation.stop()
+            isStopping = false
+            stopProgress = 0
+        }
     }
 
     Item {
@@ -57,9 +92,11 @@ Item {
                     id: animTimer
                     interval: 16
                     repeat: true
-                    running: root.isPlaying
+                    running: root.isPlaying || root.isStopping
                     onTriggered: {
-                        time += interval / 1000
+                        if (root.isPlaying) {
+                            time += interval / 1000
+                        }
                         updateBars()
                         canvas.requestPaint()
                     }
@@ -124,23 +161,22 @@ Item {
 
     function updateBars() {
         for (var i = 0; i < barCount; i++) {
-            var phase = (i / barCount) * Math.PI * 2
-            var wave = (Math.sin(time * 2.5 + phase) + 1) / 2
-            var wave2 = (Math.sin(time * 1.7 + phase * 2) + 1) / 2
-            var wave3 = (Math.sin(time * 1.2 + phase * 3) + 1) / 2
+            if (isPlaying) {
+                var phase = (i / barCount) * Math.PI * 2
+                var wave = (Math.sin(time * 2.5 + phase) + 1) / 2
+                var wave2 = (Math.sin(time * 1.7 + phase * 2) + 1) / 2
+                var wave3 = (Math.sin(time * 1.2 + phase * 3) + 1) / 2
 
-            targetHeights[i] = minHeight + (wave * 0.3 + wave2 * 0.2 + wave3 * 0.15) * intensity
-            barHeights[i] = barHeights[i] * smoothing + targetHeights[i] * (1 - smoothing)
-        }
-    }
-
-    onIsPlayingChanged: {
-        if (isPlaying) {
-            time = 0
-        } else {
-            for (var i = 0; i < barCount; i++) {
+                targetHeights[i] = minHeight + (wave * 0.3 + wave2 * 0.2 + wave3 * 0.15) * intensity
+            } else if (isStopping) {
+                // When stopping, gradually lower the bars based on stopProgress
+                targetHeights[i] = barHeights[i] * (1 - stopProgress)
+            } else {
                 targetHeights[i] = minHeight
             }
+
+            // Apply smoothing to the height transitions
+            barHeights[i] = barHeights[i] * smoothing + targetHeights[i] * (1 - smoothing)
         }
     }
 
@@ -151,5 +187,4 @@ Item {
             easing.type: Easing.OutCubic
         }
     }
-
 }

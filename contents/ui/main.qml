@@ -949,7 +949,7 @@ PlasmoidItem {
                 font: widget.fullPlayerArtistNameFont
                 maxWidth: imageContainer.width
                 text: player.artists
-                opacity: 0.8
+                opacity: 0.88
 
                 /*
                 * If accented artist name is enabled
