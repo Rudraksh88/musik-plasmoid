@@ -85,8 +85,8 @@ PlasmoidItem {
         // return Kirigami.Theme.defaultFont
         return Qt.font({
             family: Kirigami.Theme.defaultFont.family,
-            pixelSize: 28,
-            weight: Font.Black
+            pointSize: 18,
+            weight: Font.Bold
         })
     }
 
@@ -98,7 +98,14 @@ PlasmoidItem {
                                 Font.AllUppercase : Font.MixedCase
             return font
         }
-        return Kirigami.Theme.defaultFont
+
+        return Qt.font({
+            family: Kirigami.Theme.defaultFont.family,
+            pointSize: 10,
+            capitalization: Font.AllUppercase,
+            letterSpacing: 1,
+            weight: Font.Bold
+        })
     }
 
     readonly property font timerFont: {
