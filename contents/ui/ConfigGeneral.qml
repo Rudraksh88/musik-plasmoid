@@ -60,13 +60,16 @@ KCM.SimpleKCM {
     property alias cfg_timerCapitalize: timerCapitalize.checked
     property double cfg_timerSpacing: 0.00
 
-    // Margin settings
+    // Margin & Spacing properties
     property alias cfg_beforeAlbumCover: beforeAlbumCover.value
     property alias cfg_beforeSongName: beforeSongName.value
     property alias cfg_afterSongName: afterSongName.value
     property alias cfg_afterArtistName: afterArtistName.value
     property alias cfg_beforePlayerControls: beforePlayerControls.value
     property alias cfg_afterPlayerControls: afterPlayerControls.value
+    property alias cfg_playerControlsSpacing: playerControlsSpacing.value
+    property alias cfg_controlsRowSpacing: controlsRowSpacing.value
+
 
     // Audio visualization
     property alias cfg_audioVisualization: audioVisualization.checked
@@ -677,7 +680,7 @@ KCM.SimpleKCM {
 
         // Description text
         Label {
-            text: i18n("Adjust the vertical spacing between elements:")
+            text: i18n("Adjust the vertical and horizontal spacing between elements:")
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             opacity: 0.5
@@ -685,24 +688,64 @@ KCM.SimpleKCM {
             Layout.bottomMargin: 6
         }
 
-        SpinBox {
-            id: beforeAlbumCover
-            from: -50
-            to: 100
-            stepSize: 1
-            Kirigami.FormData.label: i18n("Before album cover:")
+        // SpinBox {
+        //     id: beforeAlbumCover
+        //     from: -50
+        //     to: 100
+        //     stepSize: 1
+        //     Kirigami.FormData.label: i18n("Before album cover:")
+        // }
+
+        ColumnLayout {
+            Label {
+                text: i18n("Album cover")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                font.pointSize: 10
+                font.letterSpacing: 2
+                font.bold: true
+                font.capitalization: Font.AllUppercase
+                opacity: 0.5
+                Layout.topMargin: 6
+            }
+
+            spacing: 2
+
+            RowLayout {
+                spacing: Kirigami.Units.largeSpacing
+                Label {
+                    text: i18n("Before album cover:")
+                    Layout.minimumWidth: 160
+                }
+                SpinBox {
+                    id: beforeAlbumCover
+                    from: -50
+                    to: 100
+                    stepSize: 1
+                }
+            }
         }
 
         // Text block margins
         ColumnLayout {
-            Kirigami.FormData.label: i18n("Text block:")
+            Label {
+                text: i18n("Text elements")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                font.pointSize: 10
+                font.letterSpacing: 2
+                font.bold: true
+                font.capitalization: Font.AllUppercase
+                opacity: 0.5
+                Layout.topMargin: 10
+            }
             spacing: 2
 
             RowLayout {
                 spacing: Kirigami.Units.largeSpacing
                 Label {
                     text: i18n("Before song name:")
-                    Layout.minimumWidth: 120
+                    Layout.minimumWidth: 160
                 }
                 SpinBox {
                     id: beforeSongName
@@ -716,7 +759,7 @@ KCM.SimpleKCM {
                 spacing: Kirigami.Units.largeSpacing
                 Label {
                     text: i18n("After song name:")
-                    Layout.minimumWidth: 120
+                    Layout.minimumWidth: 160
                 }
                 SpinBox {
                     id: afterSongName
@@ -730,7 +773,7 @@ KCM.SimpleKCM {
                 spacing: Kirigami.Units.largeSpacing
                 Label {
                     text: i18n("After artist name:")
-                    Layout.minimumWidth: 120
+                    Layout.minimumWidth: 160
                 }
                 SpinBox {
                     id: afterArtistName
@@ -743,14 +786,24 @@ KCM.SimpleKCM {
 
         // Player controls margins
         ColumnLayout {
-            Kirigami.FormData.label: i18n("Player controls:")
+            Label {
+                text: i18n("Player controls")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                font.pointSize: 10
+                font.letterSpacing: 2
+                font.bold: true
+                font.capitalization: Font.AllUppercase
+                opacity: 0.5
+                Layout.topMargin: 10
+            }
             spacing: 2
 
             RowLayout {
                 spacing: Kirigami.Units.largeSpacing
                 Label {
                     text: i18n("Before controls:")
-                    Layout.minimumWidth: 120
+                    Layout.minimumWidth: 160
                 }
                 SpinBox {
                     id: beforePlayerControls
@@ -764,10 +817,63 @@ KCM.SimpleKCM {
                 spacing: Kirigami.Units.largeSpacing
                 Label {
                     text: i18n("After controls:")
-                    Layout.minimumWidth: 120
+                    Layout.minimumWidth: 160
                 }
                 SpinBox {
                     id: afterPlayerControls
+                    from: -50
+                    to: 100
+                    stepSize: 1
+                }
+            }
+        }
+
+        // Player controls row spacing
+        ColumnLayout {
+            // Kirigami.FormData.label: i18n("Player controls row:")
+            Label {
+                text: i18n("Horizontal spacing (row):")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                font.pointSize: 10
+                opacity: 0.5
+                Layout.topMargin: 6
+            }
+            // Label {
+            //     text: i18n("Adjust the horizontal spacing between player controls")
+            //     textFormat: Text.PlainText
+            //     wrapMode: Text.WordWrap
+            //     opacity: 0.5
+            //     font.pointSize: 10
+            //     Layout.topMargin: -6
+            //     Layout.bottomMargin: 6
+            // }
+
+
+            spacing: 2
+
+            RowLayout {
+                spacing: Kirigami.Units.largeSpacing
+                Label {
+                    text: i18n("Main controls spacing:")
+                    Layout.minimumWidth: 160
+                }
+                SpinBox {
+                    id: playerControlsSpacing
+                    from: -50
+                    to: 100
+                    stepSize: 1
+                }
+            }
+
+            RowLayout {
+                spacing: Kirigami.Units.largeSpacing
+                Label {
+                    text: i18n("Full Row spacing:")
+                    Layout.minimumWidth: 160
+                }
+                SpinBox {
+                    id: controlsRowSpacing
                     from: -50
                     to: 100
                     stepSize: 1

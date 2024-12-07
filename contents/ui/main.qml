@@ -1026,7 +1026,7 @@ PlasmoidItem {
                 // Move existing player controls here
                 RowLayout {
                     id: playerControls
-                    spacing: 32
+                    spacing: plasmoid.configuration.controlsRowSpacing
 
                     // Center the row within the container
                     anchors.centerIn: parent
@@ -1055,7 +1055,7 @@ PlasmoidItem {
                     }
 
                     RowLayout {
-                        spacing: 22
+                        spacing: plasmoid.configuration.playerControlsSpacing
 
                         CommandIcon {
                             enabled: player.canGoPrevious

@@ -89,7 +89,7 @@
             <default>false</default>
         </entry>
 
-        <!-- Margin settings -->
+        <!-- Margin & Spacing settings -->
         <entry name="beforeAlbumCover" type="Int">
             <default>0</default>
         </entry>
@@ -107,6 +107,12 @@
         </entry>
         <entry name="afterPlayerControls" type="Int"> <!-- After player controls -->
             <default>0</default>
+        </entry>
+        <entry name="playerControlsSpacing" type="Int"> <!-- Between player controls -->
+            <default>22</default>
+        </entry>
+        <entry name="controlsRowSpacing" type="Int"> <!-- Between the entire row of player controls -->
+            <default>32</default>
         </entry>
 
         <!-- Audio visualizer setting -->
