@@ -1026,7 +1026,7 @@ PlasmoidItem {
                 // Move existing player controls here
                 RowLayout {
                     id: playerControls
-                    spacing: 25
+                    spacing: 32
 
                     // Center the row within the container
                     anchors.centerIn: parent
@@ -1054,44 +1054,48 @@ PlasmoidItem {
                         (plasmoid.configuration.accentedButtons && !plasmoid.configuration.useCustomColor ? widget.dominantColor : plasmoid.configuration.accentColor) : defaultForegroundColor
                     }
 
-                    CommandIcon {
-                        enabled: player.canGoPrevious
-                        Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium - 2
-                        // source: "player_prev"
-                        source: iconSources.prev
-                        onClicked: {
-                            player.previous()
-                            // Call forceUpdateScroll() from the ScrollingText.qml
-                            titleText.forceUpdateScroll()
-                            artistText.forceUpdateScroll()
+                    RowLayout {
+                        spacing: 22
+
+                        CommandIcon {
+                            enabled: player.canGoPrevious
+                            Layout.alignment: Qt.AlignHCenter
+                            size: Kirigami.Units.iconSizes.medium - 2
+                            // source: "player_prev"
+                            source: iconSources.prev
+                            onClicked: {
+                                player.previous()
+                                // Call forceUpdateScroll() from the ScrollingText.qml
+                                titleText.forceUpdateScroll()
+                                artistText.forceUpdateScroll()
+                            }
                         }
-                    }
 
-                    CommandIcon {
-                        enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
-                        Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.large
-                        source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? iconSources.pause : iconSources.play
+                        CommandIcon {
+                            enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
+                            Layout.alignment: Qt.AlignHCenter
+                            size: Kirigami.Units.iconSizes.large
+                            source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? iconSources.pause : iconSources.play
 
-                        onClicked: {
-                            player.playPause()
-                            titleText.forceUpdateScroll()
-                            artistText.forceUpdateScroll()
+                            onClicked: {
+                                player.playPause()
+                                titleText.forceUpdateScroll()
+                                artistText.forceUpdateScroll()
+                            }
                         }
-                    }
 
-                    CommandIcon {
-                        enabled: player.canGoNext
-                        Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium - 2
-                        // source: "player_next"
-                        source: iconSources.next
-                        onClicked: {
-                            player.next()
-                            // Call forceUpdateScroll() from the ScrollingText.qml
-                            titleText.forceUpdateScroll()
-                            artistText.forceUpdateScroll()
+                        CommandIcon {
+                            enabled: player.canGoNext
+                            Layout.alignment: Qt.AlignHCenter
+                            size: Kirigami.Units.iconSizes.medium - 2
+                            // source: "player_next"
+                            source: iconSources.next
+                            onClicked: {
+                                player.next()
+                                // Call forceUpdateScroll() from the ScrollingText.qml
+                                titleText.forceUpdateScroll()
+                                artistText.forceUpdateScroll()
+                            }
                         }
                     }
 
