@@ -1044,8 +1044,8 @@ PlasmoidItem {
                     CommandIcon {
                         enabled: player.canChangeShuffle
                         Layout.alignment: Qt.AlignHCenter
-                        size: 35
-                        property real iconScale: 0.65
+                        size: Kirigami.Units.iconSizes.medium - 10
+                        // property real iconScale: 0.65
                         source: player.shuffle === Mpris.ShuffleStatus.On ? iconSources.shuffleOn : iconSources.shuffleOff
                         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
                         active: player.shuffle === Mpris.ShuffleStatus.On
@@ -1110,9 +1110,9 @@ PlasmoidItem {
                         id: repeatButton
                         enabled: player.canChangeLoopStatus
                         Layout.alignment: Qt.AlignHCenter
-                        size: 35
+                        size: Kirigami.Units.iconSizes.medium - 10
                         // Scale down icon
-                        property real iconScale: 0.65
+                        // property real iconScale: 0.65
 
                         // Choose icon based on loop status
                         // source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : player.loopStatus === Mpris.LoopStatus.None ? iconSources.repeatOff : iconSources.repeatAll
@@ -1151,138 +1151,6 @@ PlasmoidItem {
                     }
                 }
             }
-
-            // Item {
-            //     id: playerControlsContainer
-
-            //     // Set a fixed width instead of relative width
-            //     Layout.preferredWidth: Kirigami.Units.gridUnit * 16 // Adjust this value as needed
-            //     Layout.preferredHeight: playerControls.implicitHeight
-
-            //     // Add margins before and after player controls
-            //     Layout.topMargin: plasmoid.configuration.beforePlayerControls
-            //     Layout.bottomMargin: plasmoid.configuration.afterPlayerControls
-
-            //     Layout.alignment: Qt.AlignHCenter
-
-
-            //     RowLayout {
-            //         id: playerControls
-            //         spacing: 25
-
-            //         // Center the row within the container
-            //         anchors.centerIn: parent
-            //         // Don't fill the width to keep buttons centered
-            //         width: implicitWidth
-
-            //         CommandIcon {
-            //             enabled: player.canChangeShuffle
-            //             Layout.alignment: Qt.AlignHCenter
-            //             size: 35
-            //             property real iconScale: 0.65
-            //             source: player.shuffle === Mpris.ShuffleStatus.On ? iconSources.shuffleOn : iconSources.shuffleOff
-            //             onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
-            //             active: player.shuffle === Mpris.ShuffleStatus.On
-            //             // iconColor: player.shuffle === Mpris.ShuffleStatus.On ? widget.dominantColor : Kirigami.Theme.textColor
-
-            //             /*
-            //             * If accented buttons is enabled
-            //             *   if custom color is enabled, use the custom color
-            //             *   else use the dominant color
-            //             * else use the default color
-            //             */
-            //             iconColor: player.shuffle === Mpris.ShuffleStatus.On ?
-            //             (plasmoid.configuration.accentedButtons && !plasmoid.configuration.useCustomColor ? widget.dominantColor : plasmoid.configuration.accentColor) : defaultForegroundColor
-            //         }
-
-            //         CommandIcon {
-            //             enabled: player.canGoPrevious
-            //             Layout.alignment: Qt.AlignHCenter
-            //             size: Kirigami.Units.iconSizes.medium - 2
-            //             // source: "player_prev"
-            //             source: iconSources.prev
-            //             onClicked: {
-            //                 player.previous()
-            //                 // Call forceUpdateScroll() from the ScrollingText.qml
-            //                 titleText.forceUpdateScroll()
-            //                 artistText.forceUpdateScroll()
-            //             }
-            //         }
-
-            //         CommandIcon {
-            //             enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
-            //             Layout.alignment: Qt.AlignHCenter
-            //             size: Kirigami.Units.iconSizes.large
-            //             source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? iconSources.pause : iconSources.play
-
-            //             onClicked: {
-            //                 player.playPause()
-            //                 titleText.forceUpdateScroll()
-            //                 artistText.forceUpdateScroll()
-            //             }
-            //         }
-
-            //         CommandIcon {
-            //             enabled: player.canGoNext
-            //             Layout.alignment: Qt.AlignHCenter
-            //             size: Kirigami.Units.iconSizes.medium - 2
-            //             // source: "player_next"
-            //             source: iconSources.next
-            //             onClicked: {
-            //                 player.next()
-            //                 // Call forceUpdateScroll() from the ScrollingText.qml
-            //                 titleText.forceUpdateScroll()
-            //                 artistText.forceUpdateScroll()
-            //             }
-            //         }
-
-            //         CommandIcon {
-            //             id: repeatButton
-            //             enabled: player.canChangeLoopStatus
-            //             Layout.alignment: Qt.AlignHCenter
-            //             size: 35
-            //             // Scale down icon
-            //             property real iconScale: 0.65
-
-            //             // Choose icon based on loop status
-            //             // source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : player.loopStatus === Mpris.LoopStatus.None ? iconSources.repeatOff : iconSources.repeatAll
-
-            //             source: player.loopStatus === Mpris.LoopStatus.Track ? iconSources.repeatTrack : iconSources.repeatAll
-            //             // iconColor: player.loopStatus !== Mpris.LoopStatus.None ? widget.dominantColor : Kirigami.Theme.textColor
-
-            //             /*
-            //             * If accented buttons is enabled
-            //             *   if custom color is enabled, use the custom color
-            //             *   else use the dominant color
-            //             * else use the default color
-            //             */
-            //             iconColor: player.loopStatus !== Mpris.LoopStatus.None ?
-            //             (plasmoid.configuration.accentedButtons && !plasmoid.configuration.useCustomColor ? widget.dominantColor : plasmoid.configuration.accentColor) : defaultForegroundColor
-
-
-            //             // Default opacity is 0.4 for None, 0.8 for others
-            //             // property real baseOpacity: player.loopStatus === Mpris.LoopStatus.None ? 0.4 : 0.8
-
-            //             // Use the base opacity unless hovered
-            //             // opacity: hovered ? 1.0 : 0.7
-
-            //             Behavior on opacity {
-            //                 NumberAnimation { duration: 150 }
-            //             }
-
-            //             onClicked: () => {
-            //                 let status = Mpris.LoopStatus.None;
-            //                 if (player.loopStatus === Mpris.LoopStatus.None)
-            //                     status = Mpris.LoopStatus.Track;
-            //                 else if (player.loopStatus === Mpris.LoopStatus.Track)
-            //                     status = Mpris.LoopStatus.Playlist;
-            //                 player.setLoopStatus(status);
-            //             }
-            //         }
-            //     }
-
-            // }
-
         }
     }
 }
