@@ -1046,10 +1046,15 @@ PlasmoidItem {
                         Layout.alignment: Qt.AlignHCenter
                         size: Kirigami.Units.iconSizes.medium - 10
                         // property real iconScale: 0.65
-                        source: player.shuffle === Mpris.ShuffleStatus.On ? iconSources.shuffleOn : iconSources.shuffleOff
+                        source: iconSources.shuffleOn
                         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
                         active: player.shuffle === Mpris.ShuffleStatus.On
                         // iconColor: player.shuffle === Mpris.ShuffleStatus.On ? widget.dominantColor : Kirigami.Theme.textColor
+
+                        opacity: player.shuffle === Mpris.ShuffleStatus.On ? 1.0 : 0.35
+                        Behavior on opacity {
+                            NumberAnimation { duration: 150 }
+                        }
 
                         /*
                         * If accented buttons is enabled
@@ -1133,8 +1138,8 @@ PlasmoidItem {
                         // Default opacity is 0.4 for None, 0.8 for others
                         // property real baseOpacity: player.loopStatus === Mpris.LoopStatus.None ? 0.4 : 0.8
 
-                        // Use the base opacity unless hovered
-                        // opacity: hovered ? 1.0 : 0.7
+                        // Set opacity based on loop status
+                        opacity: player.loopStatus === Mpris.LoopStatus.None ? 0.35 : 1
 
                         Behavior on opacity {
                             NumberAnimation { duration: 150 }
