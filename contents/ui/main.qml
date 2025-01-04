@@ -40,15 +40,19 @@ PlasmoidItem {
 
     QtObject {
         id: iconSources
-        readonly property string shuffleOn:  Qt.resolvedUrl("assets/shuffle_on.svg")
-        readonly property string shuffleOff: Qt.resolvedUrl("assets/shuffle_off.svg")
-        readonly property string repeatTrack:Qt.resolvedUrl("assets/repeat_track.svg")
-        readonly property string repeatAll:  Qt.resolvedUrl("assets/repeat_all.svg")
-        readonly property string repeatOff:  Qt.resolvedUrl("assets/repeat_off.svg")
-        readonly property string play:       Qt.resolvedUrl("assets/play.svg")
-        readonly property string pause:      Qt.resolvedUrl("assets/pause.svg")
-        readonly property string prev:       Qt.resolvedUrl("assets/prev_track.svg")
-        readonly property string next:       Qt.resolvedUrl("assets/next_track.svg")
+        readonly property string shuffleOn:    Qt.resolvedUrl("assets/shuffle_on.svg")
+        readonly property string shuffleOff:   Qt.resolvedUrl("assets/shuffle_off.svg")
+        readonly property string repeatTrack:  Qt.resolvedUrl("assets/repeat_track.svg")
+        readonly property string repeatAll:    Qt.resolvedUrl("assets/repeat_all.svg")
+        readonly property string repeatOff:    Qt.resolvedUrl("assets/repeat_off.svg")
+        readonly property string play:         Qt.resolvedUrl("assets/play.svg")
+        readonly property string pause:        Qt.resolvedUrl("assets/pause.svg")
+        readonly property string prev:         Qt.resolvedUrl("assets/prev_track.svg")
+        readonly property string next:         Qt.resolvedUrl("assets/next_track.svg")
+        readonly property string compactPrev:  Qt.resolvedUrl("assets/compact_prev.svg")
+        readonly property string compactNext:  Qt.resolvedUrl("assets/compact_next.svg")
+        readonly property string compactPlay:  Qt.resolvedUrl("assets/compact_play.svg")
+        readonly property string compactPause: Qt.resolvedUrl("assets/compact_pause.svg")
     }
 
     // Mini Player font properties
@@ -231,7 +235,7 @@ PlasmoidItem {
                 PlasmaComponents3.ToolButton {
                     visible: plasmoid.configuration.commandsInPanel
                     enabled: player.canGoPrevious
-                    icon.name: "arrow-left"
+                    icon.name: iconSources.compactPrev
                     implicitWidth: compact.controlsSize
                     implicitHeight: compact.controlsSize
                     onClicked: player.previous()
@@ -242,7 +246,7 @@ PlasmoidItem {
                     enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
                     implicitWidth: compact.controlsSize
                     implicitHeight: compact.controlsSize
-                    icon.name: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "currenttrack_pause" : "media-playback-start-symbolic"
+                    icon.name: player.playbackStatus === Mpris.PlaybackStatus.Playing ? iconSources.compactPause : iconSources.compactPlay
                     onClicked: player.playPause()
                 }
 
@@ -251,7 +255,7 @@ PlasmoidItem {
                     enabled: player.canGoNext
                     implicitWidth: compact.controlsSize
                     implicitHeight: compact.controlsSize
-                    icon.name: "arrow-right"
+                    icon.name: iconSources.compactNext
                     onClicked: player.next()
                 }
             }
