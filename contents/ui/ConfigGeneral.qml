@@ -98,12 +98,36 @@ KCM.SimpleKCM {
             text: i18n("Use album cover as panel icon")
         }
 
-        Slider {
-            id: albumCoverRadius
-            from: 0
-            to: 25
-            stepSize: 2
-            Kirigami.FormData.label: i18n("Album cover radius:")
+        Label {
+            text: i18n("Album cover corner radius:")
+            font.weight: Font.DemiBold
+            font.pointSize: 10
+            opacity: 0.5
+            Layout.bottomMargin: -10
+            Layout.topMargin: 30
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            Slider {
+                id: albumCoverRadius
+                // Layout.fillWidth: true
+                Layout.minimumWidth: 250  // Ensures minimum width for better step visibility
+                from: 0
+                to: 30
+                stepSize: 1
+                Kirigami.FormData.label: i18n("Album cover radius:")
+            }
+
+            SpinBox {
+                id: albumCoverRadiusSpinBox
+                from: albumCoverRadius.from
+                to: albumCoverRadius.to
+                stepSize: albumCoverRadius.stepSize
+                value: albumCoverRadius.value
+                onValueChanged: albumCoverRadius.value = value
+            }
         }
 
         Kirigami.Separator {

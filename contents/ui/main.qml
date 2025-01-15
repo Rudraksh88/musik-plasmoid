@@ -885,7 +885,7 @@ PlasmoidItem {
                 color: "transparent"
 
                 // Add radius to the Rectangle
-                radius: 3  // Adjust this value to control corner roundness
+                radius: plasmoid.configuration.albumCoverRadius  // Adjust this value to control corner roundness
 
                 layer.enabled: true
                 layer.effect: DropShadow {

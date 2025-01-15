@@ -127,7 +127,7 @@
             <default>false</default>
         </entry>
         <entry name="albumCoverRadius" type="Int">
-            <default>8</default>
+            <default>3</default>
         </entry>
         <entry name="sourceIndex" type="string">
             <default>0</default>
