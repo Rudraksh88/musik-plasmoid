@@ -13,8 +13,7 @@ Item {
     }
 
     property int overflowBehaviour: ScrollingText.OverflowBehaviour.AlwaysScroll
-    // property color textColor: "#A8FFFFFF" // White with 65% opacity
-    property color textColor: "#A8FFFFFF" // Use white, then apply opacity and MultiEffects locally
+    property color textColor: "#A8FFFFFF" // Default color
     property string text: ""
     property string spacing: "     "
     property int maxWidth: 200 * units.devicePixelRatio
@@ -26,6 +25,11 @@ Item {
 
     readonly property bool shouldScroll: textMetrics.width > width
     readonly property int scrollDuration: shouldScroll ? ((25 * (11 - speed) + 25) * text.length) : 0
+
+    // Properties for smooth dampening
+    property real scrollPixelsPerMs: shouldScroll ? (mainText.width + spacerText.width) / scrollDuration : 0
+    property real lastPauseX: 0
+    property real dampingDuration: 800 // ms to slow down after unhover
 
     width: Math.min(maxWidth, textMetrics.width)
     height: mainText.height
@@ -41,23 +45,96 @@ Item {
         text: root.text
     }
 
-    // HoverHandler {
-    //     id: mouseArea
-    //     acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-    // }
-
     readonly property bool shouldPauseScrolling: {
         if (!shouldScroll) return true
         if (overflowBehaviour === ScrollingText.OverflowBehaviour.AlwaysScroll) {
             return false
         } else if (overflowBehaviour === ScrollingText.OverflowBehaviour.ScrollOnMouseOver) {
-            // return !mouseArea.hovered // Old scoped mouseArea
             return !hoveredOnPlasmoid
         } else {
-            // return mouseArea.hovered // Old scoped mouseArea
             return hoveredOnPlasmoid
         }
     }
+
+    // Force a repositioning timer - helps with compositor restarts
+    Timer {
+        id: startupTimer
+        interval: 100
+        repeat: false
+        running: true
+        onTriggered: {
+            // Initial positioning
+            resetTextPosition()
+
+            // Start animation if appropriate
+            updateScrollingState()
+        }
+    }
+
+    // Watch for changes to scrolling state
+    onShouldPauseScrollingChanged: {
+        updateScrollingState()
+    }
+
+    // Handle text changes
+    onTextChanged: {
+        // Reset position and update scrolling
+        resetTextPosition()
+        updateScrollingState()
+    }
+
+    // Track changes for fullRepresentation
+    onFullRepresentationChanged: {
+        // When switching between representations, reset state
+        resetTextPosition()
+        updateScrollingState()
+    }
+
+    // Fix for when the width changes
+    onWidthChanged: {
+        if (!shouldScroll) {
+            resetTextPosition()
+        }
+    }
+
+    // Parent visibility handler
+    Connections {
+        target: parent
+        function onVisibleChanged() {
+            if (parent && parent.visible) {
+                // Small delay before fixing position
+                shellRestartTimer.start()
+            }
+        }
+    }
+
+    // Timer to handle shell restarts
+    Timer {
+        id: shellRestartTimer
+        interval: 50
+        repeat: false
+        onTriggered: {
+            // Reposition text and restart animation
+            resetTextPosition()
+            updateScrollingState()
+        }
+    }
+
+    // // Polling timer to detect stuck text
+    // Timer {
+    //     id: safetyCheckTimer
+    //     interval: 2000
+    //     repeat: true
+    //     running: root.visible && shouldScroll
+    //     onTriggered: {
+    //         // If text is stuck off-screen, reset it
+    //         if (scrollContainer.x < -mainText.width) {
+    //             // Text is too far left, reset
+    //             resetTextPosition()
+    //             updateScrollingState()
+    //         }
+    //     }
+    // }
 
     Item {
         id: scrollContainer
@@ -119,48 +196,127 @@ Item {
             }
         }
 
+        // Main scrolling animation
         NumberAnimation {
-            id: scrollAnimation
+            id: normalScrollAnimation
             target: scrollContainer
             property: "x"
-            from: scrollAnimation.running ? scrollContainer.x : 0
+            from: 0
             to: -(mainText.width + spacerText.width)
             duration: root.scrollDuration
             loops: Animation.Infinite
-            running: root.shouldScroll && !root.shouldPauseScrolling
+            running: false
             easing.type: Easing.Linear
 
-            onRunningChanged: {
-                if (!running) {
-                    scrollContainer.x = horizontalAlignment === Text.AlignHCenter ?
-                        (root.width - mainText.width) / 2 : 0
+            onStopped: {
+                if (root.visible && shouldScroll && !shouldPauseScrolling) {
+                    // If animation should still be running,
+                    // make sure it restarts from a valid position
+                    if (scrollContainer.x <= -mainText.width) {
+                        scrollContainer.x = 0
+                    }
+                    normalScrollAnimation.from = scrollContainer.x
+                    normalScrollAnimation.start()
                 }
             }
         }
 
-        Behavior on x {
-            // enabled: !scrollAnimation.running
-            NumberAnimation {
-                // duration: 150
+        // Damping animation for smooth slowdown
+        NumberAnimation {
+            id: dampingAnimation
+            target: scrollContainer
+            property: "x"
+            duration: root.dampingDuration
+            easing.type: Easing.OutQuad
+            running: false
 
-                // Duration should increase with x
-                duration: 150 * -(scrollContainer.x * 0.2)
-                easing.type: Easing.OutCubic
+            onFinished: {
+                // If text is already scrolled past the beginning
+                if (scrollContainer.x <= -mainText.width) {
+                    // Reset to beginning
+                    scrollContainer.x = 0
+                }
             }
         }
     }
 
-    function forceUpdateScroll() {
-        if (scrollAnimation.running) {
-            scrollAnimation.restart()
+    // Reset text position based on alignment
+    function resetTextPosition() {
+        if (scrollContainer) {
+            // Stop animations first
+            normalScrollAnimation.stop()
+            dampingAnimation.stop()
+
+            // Reset to correct position
+            scrollContainer.x = horizontalAlignment === Text.AlignHCenter ?
+                Math.min(0, (root.width - textMetrics.width) / 2) : 0
         }
     }
 
-    // Smooth color transitions
-    // Behavior on textColor {
-    //     ColorAnimation {
-    //         duration: 150
-    //         easing.type: Easing.OutCubic
-    //     }
-    // } // Not needed now since we're using MultiEffects
+    // Update animation state based on current conditions
+    function updateScrollingState() {
+        // Only apply damping in compact mode when unhovering
+        if (!shouldScroll) {
+            normalScrollAnimation.stop()
+            dampingAnimation.stop()
+            return
+        }
+
+        if (shouldPauseScrolling) {
+            // We're pausing
+            if (!fullRepresentation && !hoveredOnPlasmoid) {
+                // Only apply damping in compact mode on unhover
+                applyDamping()
+            } else {
+                // Just stop without damping
+                normalScrollAnimation.stop()
+            }
+        } else {
+            // We're starting or resuming scrolling
+            startScrolling()
+        }
+    }
+
+    // Apply damping animation
+    function applyDamping() {
+        normalScrollAnimation.stop()
+
+        // Determine damping direction
+        var fullCycleDistance = mainText.width + spacerText.width
+        var distanceToBeginning = Math.abs(scrollContainer.x)
+        var distanceToEnd = Math.abs(-fullCycleDistance - scrollContainer.x)
+
+        // Choose nearest endpoint
+        if (distanceToBeginning <= distanceToEnd) {
+            dampingAnimation.to = 0
+        } else {
+            dampingAnimation.to = -fullCycleDistance
+        }
+
+        dampingAnimation.from = scrollContainer.x
+        dampingAnimation.duration = Math.min(dampingDuration,
+            Math.abs(dampingAnimation.to - dampingAnimation.from) / scrollPixelsPerMs * 1.5)
+
+        dampingAnimation.start()
+    }
+
+    // Start scrolling animation
+    function startScrolling() {
+        dampingAnimation.stop()
+
+        // Adjust position if needed
+        if (scrollContainer.x <= -mainText.width) {
+            scrollContainer.x = 0
+        }
+
+        normalScrollAnimation.from = scrollContainer.x
+        normalScrollAnimation.duration = root.scrollDuration
+        normalScrollAnimation.start()
+    }
+
+    // Public function to trigger reset (from outside)
+    function forceUpdateScroll() {
+        resetTextPosition()
+        updateScrollingState()
+    }
 }
