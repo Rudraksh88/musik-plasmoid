@@ -29,8 +29,56 @@ PlasmoidItem {
         id: player
         sourceName: plasmoid.configuration.sources[plasmoid.configuration.sourceIndex]
         onReadyChanged: {
-          Plasmoid.status = player.ready ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
-          console.debug(`Player ready changed: ${player.ready} -> plasmoid status changed: ${Plasmoid.status}`)
+            Plasmoid.status = player.ready ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
+            console.debug(`Player ready changed: ${player.ready} -> plasmoid status changed: ${Plasmoid.status}`)
+        }
+
+        // Add this property to track when configuration changes
+        property bool updatingFromPlayer: false
+
+        // Update your component to listen to source changes
+        onSourceNameChanged: {
+            if (!updatingFromPlayer) return;
+
+            // Find the index of the new source in the configuration
+            const sourceIndex = plasmoid.configuration.sources.indexOf(sourceName);
+            if (sourceIndex >= 0) {
+                console.log(`Updating configuration to source: ${sourceName} (index: ${sourceIndex})`);
+                plasmoid.configuration.sourceIndex = sourceIndex;
+            } else if (sourceName !== "any") {
+                // If the source isn't in our configuration yet, add it
+                console.log(`Adding new source to configuration: ${sourceName}`);
+                let newSources = [...plasmoid.configuration.sources];
+                newSources.push(sourceName);
+                plasmoid.configuration.sources = newSources;
+                plasmoid.configuration.sourceIndex = newSources.length - 1;
+            }
+
+            updatingFromPlayer = false;
+        }
+    }
+
+    // To handle resuming from suspend, add this:
+    Connections {
+        target: QtQuick.Window.window
+        function onVisibleChanged() {
+            if (QtQuick.Window.window.visible) {
+                console.log("Window became visible, checking for active sources");
+                player.updatingFromPlayer = true;
+                player.selectActiveSource();
+            }
+        }
+    }
+
+    // Add this to handle manual source selection from the configuration
+    Connections {
+        target: plasmoid.configuration
+        function onSourceIndexChanged() {
+            if (player.updatingFromPlayer) return;
+
+            const newSource = plasmoid.configuration.sources[plasmoid.configuration.sourceIndex];
+            console.log(`Configuration source changed to: ${newSource}`);
+            player.sourceName = newSource;
         }
     }
 
@@ -153,8 +201,8 @@ PlasmoidItem {
 
             // Add negative margins to make the background slightly larger than the content (instead of using padding)
             // Use this as some percentage of the widget's height (so that it scales with the widget)
-            anchors.topMargin: -widget.height * 0.12
-            anchors.bottomMargin: -widget.height * 0.12
+            anchors.topMargin: -widget.height * 0.1
+            anchors.bottomMargin: -widget.height * 0.1
 
             opacity: mouseArea.containsMouse || widget.expanded ? 1.0 : 0
 
