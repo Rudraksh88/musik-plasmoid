@@ -15,7 +15,7 @@ Item {
     property int overflowBehaviour: ScrollingText.OverflowBehaviour.AlwaysScroll
     property color textColor: "#A8FFFFFF" // Default color
     property string text: ""
-    property string spacing: "     "
+    property string spacing: "          "
     property int maxWidth: 200 * units.devicePixelRatio
     property int speed: 5
     property alias font: mainText.font
