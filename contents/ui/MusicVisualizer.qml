@@ -151,8 +151,8 @@ Item {
             GaussianBlur {
                 anchors.fill: canvas
                 source: canvas
-                radius: 80
-                samples: 88
+                radius: 120
+                samples: 120
                 cached: true
                 opacity: 1
             }
