@@ -856,12 +856,15 @@ KCM.SimpleKCM {
         ColumnLayout {
             // Kirigami.FormData.label: i18n("Player controls row:")
             Label {
-                text: i18n("Horizontal spacing (row):")
+                text: i18n("Spacing between buttons")
                 textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
                 font.pointSize: 10
                 opacity: 0.5
-                Layout.topMargin: 6
+                Layout.topMargin: 12
+                font.capitalization: Font.AllUppercase
+                font.letterSpacing: 2
+                font.bold: true
             }
             // Label {
             //     text: i18n("Adjust the horizontal spacing between player controls")
@@ -878,9 +881,18 @@ KCM.SimpleKCM {
 
             RowLayout {
                 spacing: Kirigami.Units.largeSpacing
-                Label {
-                    text: i18n("Main controls spacing:")
-                    Layout.minimumWidth: 160
+                Layout.topMargin: 6
+                ColumnLayout {
+                    Label {
+                        text: i18n("Main controls spacing:")
+                        Layout.minimumWidth: 160
+                    }
+                    Label {
+                        text: '(Prev, Play/Pause, Next)'
+                        font.pointSize: 10
+                        opacity: 0.5
+                        Layout.topMargin: -4
+                    }
                 }
                 SpinBox {
                     id: playerControlsSpacing
@@ -891,6 +903,7 @@ KCM.SimpleKCM {
             }
 
             RowLayout {
+                Layout.topMargin: 3
                 spacing: Kirigami.Units.largeSpacing
                 Label {
                     text: i18n("Full Row spacing:")
