@@ -7,6 +7,7 @@ import org.kde.plasma.components as PlasmaComponents3
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.private.mpris as Mpris
 import QtWebEngine 1.15
+import QtQuick.Effects
 // import "./lib/audioMotion-analyzer.js" as AudioMotion
 
 PlasmoidItem {
@@ -133,12 +134,89 @@ PlasmoidItem {
         readonly property real controlsSize: Math.min(height, Kirigami.Units.iconSizes.medium)
 
         MouseArea {
+            // Use this area for all mouse interactions
             id: mouseArea
             anchors.fill: parent
+            hoverEnabled: true
             onClicked: {
                 widget.expanded = !widget.expanded;
             }
         }
+
+        Rectangle {
+            id: hoverBackground
+            color: '#08FFFFFF' // 3% alpha white // or dominantColor if specified in the config
+            radius: 3
+            anchors.fill: parent
+            // anchors.topMargin: -2.3
+            // anchors.bottomMargin: -2.3
+
+            // Add negative margins to make the background slightly larger than the content (instead of using padding)
+            // Use this as some percentage of the widget's height (so that it scales with the widget)
+            anchors.topMargin: -widget.height * 0.12
+            anchors.bottomMargin: -widget.height * 0.12
+
+            opacity: mouseArea.containsMouse || widget.expanded ? 1.0 : 0
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 200
+                }
+            }
+
+            layer.enabled: true
+            layer.effect: MultiEffect {
+                brightness: 0.8
+                contrast: 1.6
+                saturation: 1.0
+            }
+
+            /* Note
+             * The color and fx values here are chosen out of experimentation with various combinations
+             * And these values blend the background color nicely (taking a hint of the color while still being white),
+             * with the surface underneath, without being very intrusive.
+
+             * color: '#08FFFFFF' alpha based white (just for a subtle white overlay)
+             * fx: brightness: 0.8, contrast: 1.6, saturation: 1.0 lower values for performance
+             * opacity: 1.0 (hovered) so that it doesn't affect the fx values
+            */
+        }
+
+
+        // Rectangle {
+        //     id: hoverBackground
+        //     color: '#4dFFFFFF' // 5% alpha white // or dominantColor if specified in the config
+        //     radius: 3
+        //     anchors.fill: parent
+        //     // anchors.topMargin: -2.3
+        //     // anchors.bottomMargin: -2.3
+
+        //     // Add negative margins to make the background slightly larger than the content (instead of using padding)
+        //     // Use this as some percentage of the widget's height (so that it scales with the widget)
+        //     anchors.topMargin: -widget.height * 0.12
+        //     anchors.bottomMargin: -widget.height * 0.12
+
+        //     opacity: mouseArea.containsMouse || widget.expanded ? 0.3 : 0
+
+        //     Behavior on opacity {
+        //         NumberAnimation {
+        //             duration: 200
+        //         }
+        //     }
+
+        //     // layer.enabled: true
+        //     // layer.effect: MultiEffect {
+        //     //     brightness: 16.0
+        //     //     contrast: 3.0
+        //     //     saturation: 1.0
+        //     // }
+
+        //     /* Note
+        //      * The values here are chosen out of experimentation with various combinations
+        //      * And these values blend the background color nicely (taking a hint of the color while still being white),
+        //      * with the surface underneath, without being very intrusive.
+        //     */
+        // }
 
         RowLayout {
             id: row
@@ -155,6 +233,7 @@ PlasmoidItem {
                 type: plasmoid.configuration.useAlbumCoverAsPanelIcon ? "image": "icon"
                 Layout.leftMargin: Kirigami.Units.smallSpacing * 2
                 Layout.rightMargin: 2
+                hoveredOnPlasmoid: mouseArea.containsMouse
             }
 
             // Separate Title and Artist
@@ -219,6 +298,8 @@ PlasmoidItem {
                 Layout.alignment: Qt.AlignLeft
                 Layout.leftMargin: 5 // Some spacing to the left of the text
                 Layout.rightMargin: -5 // Some spacing to the right of the text
+                hoveredOnPlasmoid: mouseArea.containsMouse
+                fullRepresentation: false
             }
 
 
@@ -945,6 +1026,7 @@ PlasmoidItem {
                 * else use the default color
                 */
                 textColor: plasmoid.configuration.accentedSongName ? (plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : widget.dominantColor) : '#A8FFFFFF'
+                fullRepresentation: true
 
                 // Add margin before song name
                 Layout.topMargin: plasmoid.configuration.beforeSongName
@@ -969,6 +1051,7 @@ PlasmoidItem {
                 * else use the default color
                 */
                 textColor: plasmoid.configuration.accentedArtistName ? (plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : widget.dominantColor) : '#A8FFFFFF'
+                fullRepresentation: true
 
                 Connections {
                     target: widget
@@ -1048,7 +1131,7 @@ PlasmoidItem {
                     CommandIcon {
                         enabled: player.canChangeShuffle
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium - 10
+                        size: Kirigami.Units.iconSizes.medium - 7
                         // property real iconScale: 0.65
                         source: iconSources.shuffleOn
                         onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
@@ -1076,7 +1159,7 @@ PlasmoidItem {
                         CommandIcon {
                             enabled: player.canGoPrevious
                             Layout.alignment: Qt.AlignHCenter
-                            size: Kirigami.Units.iconSizes.medium - 2
+                            size: Kirigami.Units.iconSizes.medium - 7
                             // source: "player_prev"
                             source: iconSources.prev
                             onClicked: {
@@ -1090,7 +1173,7 @@ PlasmoidItem {
                         CommandIcon {
                             enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
                             Layout.alignment: Qt.AlignHCenter
-                            size: Kirigami.Units.iconSizes.large
+                            size: Kirigami.Units.iconSizes.large + 2
                             source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? iconSources.pause : iconSources.play
 
                             onClicked: {
@@ -1103,7 +1186,7 @@ PlasmoidItem {
                         CommandIcon {
                             enabled: player.canGoNext
                             Layout.alignment: Qt.AlignHCenter
-                            size: Kirigami.Units.iconSizes.medium - 2
+                            size: Kirigami.Units.iconSizes.medium - 7
                             // source: "player_next"
                             source: iconSources.next
                             onClicked: {
@@ -1119,7 +1202,7 @@ PlasmoidItem {
                         id: repeatButton
                         enabled: player.canChangeLoopStatus
                         Layout.alignment: Qt.AlignHCenter
-                        size: Kirigami.Units.iconSizes.medium - 10
+                        size: Kirigami.Units.iconSizes.medium - 7
                         // Scale down icon
                         // property real iconScale: 0.65
 
