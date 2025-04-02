@@ -69,6 +69,7 @@ KCM.SimpleKCM {
     property alias cfg_afterPlayerControls: afterPlayerControls.value
     property alias cfg_playerControlsSpacing: playerControlsSpacing.value
     property alias cfg_controlsRowSpacing: controlsRowSpacing.value
+    property alias cfg_showHoverBackground: showHoverBackground.checked
 
 
     // Audio visualization
@@ -98,36 +99,14 @@ KCM.SimpleKCM {
             text: i18n("Use album cover as panel icon")
         }
 
-        Label {
-            text: i18n("Album cover corner radius:")
-            font.weight: Font.DemiBold
-            font.pointSize: 10
-            opacity: 0.5
-            Layout.bottomMargin: -10
-            Layout.topMargin: 30
+        Kirigami.Separator {
+            // Kirigami.FormData.isSection: true
+            // Kirigami.FormData.label: "Mini player settings:"
         }
 
-        RowLayout {
-            Layout.fillWidth: true
-
-            Slider {
-                id: albumCoverRadius
-                // Layout.fillWidth: true
-                Layout.minimumWidth: 250  // Ensures minimum width for better step visibility
-                from: 0
-                to: 30
-                stepSize: 1
-                Kirigami.FormData.label: i18n("Album cover radius:")
-            }
-
-            SpinBox {
-                id: albumCoverRadiusSpinBox
-                from: albumCoverRadius.from
-                to: albumCoverRadius.to
-                stepSize: albumCoverRadius.stepSize
-                value: albumCoverRadius.value
-                onValueChanged: albumCoverRadius.value = value
-            }
+        CheckBox {
+            id: showHoverBackground
+            text: i18n("Show hover background")
         }
 
         Kirigami.Separator {
@@ -746,6 +725,39 @@ KCM.SimpleKCM {
                     from: -50
                     to: 100
                     stepSize: 1
+                }
+            }
+
+            Label {
+                text: i18n("Album cover radius (full representation):")
+                font.weight: Font.DemiBold
+                font.pointSize: 10
+                opacity: 0.5
+                Layout.bottomMargin: -10
+                Layout.topMargin: 10
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.bottomMargin: 10
+
+                Slider {
+                    id: albumCoverRadius
+                    // Layout.fillWidth: true
+                    Layout.minimumWidth: 250  // Ensures minimum width for better step visibility
+                    from: 0
+                    to: 30
+                    stepSize: 1
+                    Kirigami.FormData.label: i18n("Album cover radius:")
+                }
+
+                SpinBox {
+                    id: albumCoverRadiusSpinBox
+                    from: albumCoverRadius.from
+                    to: albumCoverRadius.to
+                    stepSize: albumCoverRadius.stepSize
+                    value: albumCoverRadius.value
+                    onValueChanged: albumCoverRadius.value = value
                 }
             }
         }

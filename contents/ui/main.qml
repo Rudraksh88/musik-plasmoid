@@ -196,13 +196,14 @@ PlasmoidItem {
             color: '#08FFFFFF' // 3% alpha white // or dominantColor if specified in the config
             radius: 3
             anchors.fill: parent
+            visible: plasmoid.configuration.showHoverBackground
             // anchors.topMargin: -2.3
             // anchors.bottomMargin: -2.3
 
             // Add negative margins to make the background slightly larger than the content (instead of using padding)
             // Use this as some percentage of the widget's height (so that it scales with the widget)
-            anchors.topMargin: -widget.height * 0.1
-            anchors.bottomMargin: -widget.height * 0.1
+            anchors.topMargin: -widget.height * 0.12
+            anchors.bottomMargin: -widget.height * 0.12
 
             opacity: mouseArea.containsMouse || widget.expanded ? 1.0 : 0
 
