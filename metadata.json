@@ -8,12 +8,12 @@
             }
         ],
         "Icon": "view-media-track",
-        "Id": "plasmusic-toolbar",
+        "Id": "com.rudraksh.musik",
         "License": "GPL3",
         "Name": "MusiK Widget",
         "Version": "1.0.0",
         "Category": "Multimedia",
-        "Description": "Music control widget with visualization"
+        "Description": ""
     },
     "X-Plasma-API-Minimum-Version": "6.0",
     "X-Plasma-Provides": [
