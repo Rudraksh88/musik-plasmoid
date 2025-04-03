@@ -75,6 +75,43 @@ KCM.SimpleKCM {
     // Audio visualization
     property alias cfg_audioVisualization: audioVisualization.checked
 
+    // Helper functions to get effective fonts with fallback
+    function getEffectiveMiniPlayerSongNameFont() {
+        return miniPlayerSongNameFontCheckbox.checked && miniPlayerSongNameFontDialog.fontChosen.family ?
+               miniPlayerSongNameFontDialog.fontChosen :
+               Qt.font({})
+    }
+
+    function getEffectiveMiniPlayerArtistNameFont() {
+        return miniPlayerArtistNameFontCheckbox.checked && miniPlayerArtistNameFontDialog.fontChosen.family ?
+               miniPlayerArtistNameFontDialog.fontChosen :
+               Qt.font({})
+    }
+
+    function getEffectiveFullPlayerSongNameFont() {
+        return fullPlayerSongNameFontCheckbox.checked && fullPlayerSongNameFontDialog.fontChosen.family ?
+               fullPlayerSongNameFontDialog.fontChosen :
+               Qt.font({})
+    }
+
+    function getEffectiveFullPlayerArtistNameFont() {
+        return fullPlayerArtistNameFontCheckbox.checked && fullPlayerArtistNameFontDialog.fontChosen.family ?
+               fullPlayerArtistNameFontDialog.fontChosen :
+               Qt.font({})
+    }
+
+    function getEffectiveTimerFont() {
+        return timerFontCheckbox.checked && timerFontDialog.fontChosen.family ?
+               timerFontDialog.fontChosen :
+               Qt.font({})
+    }
+
+    // Helper function to format font info text
+    function formatFontInfo(fontObj) {
+        if (!fontObj || !fontObj.family) return ""
+        return i18n("%2pt, %3, %1", fontObj.family, fontObj.pointSize, fontObj.styleName)
+    }
+
     // Helper function to validate and format spacing input
     function validateSpacing(text) {
         if (text === "") return 0.00
@@ -156,11 +193,10 @@ KCM.SimpleKCM {
                     }
 
                     Label {
-                        visible: miniPlayerSongNameFontCheckbox.checked && miniPlayerSongNameFontDialog.fontChosen
-                        text: i18n("%2pt, %3, %1", miniPlayerSongNameFontDialog.fontChosen.family,
-                                miniPlayerSongNameFontDialog.fontChosen.pointSize, miniPlayerSongNameFontDialog.fontChosen.styleName)
+                        visible: miniPlayerSongNameFontCheckbox.checked
+                        text: formatFontInfo(getEffectiveMiniPlayerSongNameFont())
                         font: Qt.font({
-                            family: miniPlayerSongNameFontDialog.fontChosen.family,
+                            family: getEffectiveMiniPlayerSongNameFont().family || Font.family,
                             pointSize: 12
                         })
                     }
@@ -178,7 +214,12 @@ KCM.SimpleKCM {
                         text: i18n("Choose font...")
                         icon.name: "settings-configure"
                         enabled: miniPlayerSongNameFontCheckbox.checked
-                        onClicked: miniPlayerSongNameFontDialog.open()
+                        onClicked: {
+                            if (!miniPlayerSongNameFontDialog.selectedFont.family) {
+                                miniPlayerSongNameFontDialog.selectedFont = Qt.application.font
+                            }
+                            miniPlayerSongNameFontDialog.open()
+                        }
                     }
 
                     Item { Layout.fillWidth: true } // Spacer
@@ -220,11 +261,10 @@ KCM.SimpleKCM {
                     }
 
                     Label {
-                        visible: miniPlayerArtistNameFontCheckbox.checked && miniPlayerArtistNameFontDialog.fontChosen
-                        text: i18n("%2pt, %3, %1", miniPlayerArtistNameFontDialog.fontChosen.family,
-                                miniPlayerArtistNameFontDialog.fontChosen.pointSize, miniPlayerArtistNameFontDialog.fontChosen.styleName)
+                        visible: miniPlayerArtistNameFontCheckbox.checked
+                        text: formatFontInfo(getEffectiveMiniPlayerArtistNameFont())
                         font: Qt.font({
-                            family: miniPlayerArtistNameFontDialog.fontChosen.family,
+                            family: getEffectiveMiniPlayerArtistNameFont().family || Font.family,
                             pointSize: 12
                         })
                     }
@@ -242,7 +282,12 @@ KCM.SimpleKCM {
                         text: i18n("Choose font...")
                         icon.name: "settings-configure"
                         enabled: miniPlayerArtistNameFontCheckbox.checked
-                        onClicked: miniPlayerArtistNameFontDialog.open()
+                        onClicked: {
+                            if (!miniPlayerArtistNameFontDialog.selectedFont.family) {
+                                miniPlayerArtistNameFontDialog.selectedFont = Qt.application.font
+                            }
+                            miniPlayerArtistNameFontDialog.open()
+                        }
                     }
 
                     Item { Layout.fillWidth: true }
@@ -301,11 +346,10 @@ KCM.SimpleKCM {
                     }
 
                     Label {
-                        visible: fullPlayerSongNameFontCheckbox.checked && fullPlayerSongNameFontDialog.fontChosen
-                        text: i18n("%2pt, %3, %1", fullPlayerSongNameFontDialog.fontChosen.family,
-                                fullPlayerSongNameFontDialog.fontChosen.pointSize, fullPlayerSongNameFontDialog.fontChosen.styleName)
+                        visible: fullPlayerSongNameFontCheckbox.checked
+                        text: formatFontInfo(getEffectiveFullPlayerSongNameFont())
                         font: Qt.font({
-                            family: fullPlayerSongNameFontDialog.fontChosen.family,
+                            family: getEffectiveFullPlayerSongNameFont().family || Font.family,
                             pointSize: 12
                         })
                     }
@@ -323,7 +367,12 @@ KCM.SimpleKCM {
                         text: i18n("Choose font...")
                         icon.name: "settings-configure"
                         enabled: fullPlayerSongNameFontCheckbox.checked
-                        onClicked: fullPlayerSongNameFontDialog.open()
+                        onClicked: {
+                            if (!fullPlayerSongNameFontDialog.selectedFont.family) {
+                                fullPlayerSongNameFontDialog.selectedFont = Qt.application.font
+                            }
+                            fullPlayerSongNameFontDialog.open()
+                        }
                     }
 
                     Item { Layout.fillWidth: true }
@@ -365,11 +414,10 @@ KCM.SimpleKCM {
                     }
 
                     Label {
-                        visible: fullPlayerArtistNameFontCheckbox.checked && fullPlayerArtistNameFontDialog.fontChosen
-                        text: i18n("%2pt, %3, %1", fullPlayerArtistNameFontDialog.fontChosen.family,
-                                fullPlayerArtistNameFontDialog.fontChosen.pointSize, fullPlayerArtistNameFontDialog.fontChosen.styleName)
+                        visible: fullPlayerArtistNameFontCheckbox.checked
+                        text: formatFontInfo(getEffectiveFullPlayerArtistNameFont())
                         font: Qt.font({
-                            family: fullPlayerArtistNameFontDialog.fontChosen.family,
+                            family: getEffectiveFullPlayerArtistNameFont().family || Font.family,
                             pointSize: 12
                         })
                     }
@@ -387,7 +435,12 @@ KCM.SimpleKCM {
                         text: i18n("Choose font...")
                         icon.name: "settings-configure"
                         enabled: fullPlayerArtistNameFontCheckbox.checked
-                        onClicked: fullPlayerArtistNameFontDialog.open()
+                        onClicked: {
+                            if (!fullPlayerArtistNameFontDialog.selectedFont.family) {
+                                fullPlayerArtistNameFontDialog.selectedFont = Qt.application.font
+                            }
+                            fullPlayerArtistNameFontDialog.open()
+                        }
                     }
 
                     Item { Layout.fillWidth: true }
@@ -429,11 +482,10 @@ KCM.SimpleKCM {
                     }
 
                     Label {
-                        visible: timerFontCheckbox.checked && timerFontDialog.fontChosen
-                        text: i18n("%2pt, %3, %1", timerFontDialog.fontChosen.family,
-                                timerFontDialog.fontChosen.pointSize, timerFontDialog.fontChosen.styleName)
+                        visible: timerFontCheckbox.checked
+                        text: formatFontInfo(getEffectiveTimerFont())
                         font: Qt.font({
-                            family: timerFontDialog.fontChosen.family,
+                            family: getEffectiveTimerFont().family || Font.family,
                             pointSize: 12
                         })
                     }
@@ -451,7 +503,12 @@ KCM.SimpleKCM {
                         text: i18n("Choose font...")
                         icon.name: "settings-configure"
                         enabled: timerFontCheckbox.checked
-                        onClicked: timerFontDialog.open()
+                        onClicked: {
+                            if (!timerFontDialog.selectedFont.family) {
+                                timerFontDialog.selectedFont = Qt.application.font
+                            }
+                            timerFontDialog.open()
+                        }
                     }
 
                     Item { Layout.fillWidth: true }
@@ -488,15 +545,25 @@ KCM.SimpleKCM {
         QtDialogs.FontDialog {
             id: miniPlayerSongNameFontDialog
             title: i18n("Choose Mini Player Song Name Font")
-            property font fontChosen: Qt.font({})
-            selectedFont: fontChosen  // Initialize with saved font
+            property font fontChosen: Qt.font({
+                family: Qt.application.font.family,
+                pointSize: Qt.application.font.pointSize,
+                weight: Font.Normal,
+                italic: false
+            })
+            selectedFont: fontChosen
             onAccepted: { fontChosen = selectedFont }
         }
 
         QtDialogs.FontDialog {
             id: miniPlayerArtistNameFontDialog
             title: i18n("Choose Mini Player Artist Name Font")
-            property font fontChosen: Qt.font({})
+            property font fontChosen: Qt.font({
+                family: Qt.application.font.family,
+                pointSize: Qt.application.font.pointSize,
+                weight: Font.Normal,
+                italic: false
+            })
             selectedFont: fontChosen
             onAccepted: { fontChosen = selectedFont }
         }
@@ -504,7 +571,12 @@ KCM.SimpleKCM {
         QtDialogs.FontDialog {
             id: fullPlayerSongNameFontDialog
             title: i18n("Choose Full Player Song Name Font")
-            property font fontChosen: Qt.font({})
+            property font fontChosen: Qt.font({
+                family: Qt.application.font.family,
+                pointSize: Qt.application.font.pointSize,
+                weight: Font.Normal,
+                italic: false
+            })
             selectedFont: fontChosen
             onAccepted: { fontChosen = selectedFont }
         }
@@ -512,7 +584,12 @@ KCM.SimpleKCM {
         QtDialogs.FontDialog {
             id: fullPlayerArtistNameFontDialog
             title: i18n("Choose Full Player Artist Name Font")
-            property font fontChosen: Qt.font({})
+            property font fontChosen: Qt.font({
+                family: Qt.application.font.family,
+                pointSize: Qt.application.font.pointSize,
+                weight: Font.Normal,
+                italic: false
+            })
             selectedFont: fontChosen
             onAccepted: { fontChosen = selectedFont }
         }
@@ -520,7 +597,12 @@ KCM.SimpleKCM {
         QtDialogs.FontDialog {
             id: timerFontDialog
             title: i18n("Choose Timer Font")
-            property font fontChosen: Qt.font({})
+            property font fontChosen: Qt.font({
+                family: Qt.application.font.family,
+                pointSize: Qt.application.font.pointSize,
+                weight: Font.Normal,
+                italic: false
+            })
             selectedFont: fontChosen
             onAccepted: { fontChosen = selectedFont }
         }
