@@ -7,10 +7,10 @@
                 "Name": "Rudraksh Tripathi"
             }
         ],
-        "Icon": "view-media-track",
+        "Icon": "music-player",
         "Id": "com.rudraksh.musik",
         "License": "GPL3",
-        "Name": "MusiK Widget",
+        "Name": "MusiK",
         "Version": "1.0.0",
         "Category": "Multimedia",
         "Description": ""

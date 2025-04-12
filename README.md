@@ -2,6 +2,7 @@
 # MusiK Plasmoid
 Engineered with a love for music, skinned in Zune nostalgia, and refined down to the last pixel, MusiK is a slick music player plasmoid, based on MPRIS2, Crafted for the detail-obsessed. Built for Plasma.
 
+<video controls src="images/Demo.mp4" title="Demo"></video>
 
 ## Features
 - **Fully Customizable Typography**
@@ -30,6 +31,7 @@ MusiK is built on the MPRIS2 protocol, ensuring compatibility with a wide range 
 ![Preview 2](images/Preview2.png)
 ![Preview 3](images/Preview3.png)
 ![Preview 4](images/Preview4.png)
+<video controls src="images/DemoLong.mp4" title="Longer Demo"></video>
 
 ## Installation
 1. Clone the repository:
@@ -44,12 +46,12 @@ kpackagetool6 -i /tmp/musik-plasmoid/com.rudraksh.musik/ --type Plasma/Applet
 
 3. Upgrading the widget:
 ```bash
-kpackagetool6 -u /tmp/com.rudraksh.musik/src/ --type Plasma/Applet
+kpackagetool6 -u /tmp/musik-plasmoid/com.rudraksh.musik/ --type Plasma/Applet
 ```
 
 4. Removing the widget:
 ```bash
-kpackagetool6 -r musik-plasmoid --type Plasma/Applet
+kpackagetool6 -r com.rudraksh.musik --type Plasma/Applet
 ```
 
 ## Roadmap
@@ -63,7 +65,7 @@ kpackagetool6 -r musik-plasmoid --type Plasma/Applet
 Contributions are welcome! If you have suggestions, bug reports, or feature requests, please open an issue or submit a pull request.
 
 ## Support
-I like treats. If this plasmoid has made your day a little better, consider buying me a coffee or a snack. It helps keep the development going and fuels my caffeine addiction.
+This plasmoid was powered up using 100% organically-sourced, sustainably-grown coffee and a lot of late nights. If it brought you joy, consider providing a treat — coffee, snacks  and beer accepted. Donations may unlock bonus content (or at least a grin).
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-orange.svg?style=flat&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/rudraksh.tripathi)
 
