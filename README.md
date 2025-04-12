@@ -2,7 +2,7 @@
 # MusiK Plasmoid
 Engineered with a love for music, skinned in Zune nostalgia, and refined down to the last pixel, MusiK is a slick music player plasmoid, based on MPRIS2, Crafted for the detail-obsessed. Built for Plasma.
 
-<video controls src="images/Demo.mp4" title="Demo"></video>
+![Demo](images/Demo.gif)
 
 ## Features
 - **Fully Customizable Typography**
@@ -31,7 +31,9 @@ MusiK is built on the MPRIS2 protocol, ensuring compatibility with a wide range 
 ![Preview 2](images/Preview2.png)
 ![Preview 3](images/Preview3.png)
 ![Preview 4](images/Preview4.png)
-<video controls src="images/DemoLong.mp4" title="Longer Demo"></video>
+
+- A longer demo
+![Demo Long](images/DemoFull.gif)
 
 ## Installation
 1. Clone the repository:
