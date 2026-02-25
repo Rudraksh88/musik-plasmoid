@@ -56,6 +56,12 @@ Item {
 
     Layout.preferredHeight: column.implicitHeight
     Layout.fillWidth: true
+    anchors.margins: {
+                left: 10
+                right: 10
+                top: 10
+                bottom: 10
+            }
 
     onSongLengthChanged: {
         if (lastSongLength !== songLength) {

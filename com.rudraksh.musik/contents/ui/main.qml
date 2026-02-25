@@ -983,9 +983,29 @@ PlasmoidItem {
 
         ColumnLayout {
             id: column
+            clip: true
+            // Add rounded corners to the column using mask
+            layer.enabled: true
+            layer.effect: OpacityMask {
+                maskSource: Rectangle {
+                    width: fullRep.width
+                    height: fullRep.height
+                    radius: 13
+                    antialiasing: true
+                }
+            }
+
 
             // spacing: 0
             anchors.fill: parent
+            anchors.margins: {
+                left: -12
+                right: -12
+                top: 0
+                bottom: -10
+            }
+            antialiasing: true
+
             spacing: Kirigami.Units.largeSpacing
 
             // Debug MPRIS source
@@ -1117,6 +1137,8 @@ PlasmoidItem {
             TrackPositionSlider {
                 Layout.preferredWidth: imageContainer.width
                 Layout.alignment: Qt.AlignHCenter
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
 
                 // Customize appearance
                 trackColor: "#30FFFFFF"
