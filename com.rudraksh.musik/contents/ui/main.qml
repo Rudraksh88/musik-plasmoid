@@ -1184,7 +1184,11 @@ PlasmoidItem {
 
                     isPlaying: player.playbackStatus === Mpris.PlaybackStatus.Playing
                     accentColor: widget.dominantColor
-                    intensity: 0.5
+                    intensity: plasmoid.configuration.vizIntensity
+                    bellWidth: plasmoid.configuration.vizBellWidth
+                    bellFloor: plasmoid.configuration.vizBellFloor
+                    reactivity: plasmoid.configuration.vizReactivity
+                    punch: plasmoid.configuration.vizPunch
                     visible: plasmoid.configuration.audioVisualization
                 }
 

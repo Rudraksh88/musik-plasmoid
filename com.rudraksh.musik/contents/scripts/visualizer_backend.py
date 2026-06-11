@@ -37,9 +37,10 @@ IDLE_EXIT_SECS = 180     # exit when no client connected for this long
 
 
 class WSServer:
-    """Minimal send-only WebSocket server (stdlib only)."""
+    """Minimal WebSocket server (stdlib only). Broadcasts frames out;
+    incoming text frames are passed to on_message (used for live config)."""
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, on_message=None):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((host, port))
@@ -47,6 +48,7 @@ class WSServer:
         self.clients = []
         self.lock = threading.Lock()
         self.last_client_seen = time.monotonic()
+        self.on_message = on_message
         threading.Thread(target=self._accept_loop, daemon=True).start()
 
     def _accept_loop(self):
@@ -87,8 +89,54 @@ class WSServer:
             with self.lock:
                 self.clients.append(conn)
                 self.last_client_seen = time.monotonic()
+            self._read_loop(conn)
         except (OSError, ConnectionError):
+            with self.lock:
+                if conn in self.clients:
+                    self.clients.remove(conn)
             conn.close()
+
+    def _read_loop(self, conn):
+        """Parse incoming client frames: text -> on_message, ping -> pong."""
+        buf = b""
+        while True:
+            chunk = conn.recv(4096)
+            if not chunk:
+                raise ConnectionError
+            buf += chunk
+            while len(buf) >= 2:
+                opcode = buf[0] & 0x0F
+                masked = buf[1] & 0x80
+                length = buf[1] & 0x7F
+                offset = 2
+                if length == 126:
+                    if len(buf) < 4:
+                        break
+                    length = int.from_bytes(buf[2:4], "big")
+                    offset = 4
+                if masked:
+                    if len(buf) < offset + 4 + length:
+                        break
+                    mask = buf[offset:offset + 4]
+                    payload = bytes(
+                        b ^ mask[i % 4]
+                        for i, b in enumerate(buf[offset + 4:offset + 4 + length])
+                    )
+                    buf = buf[offset + 4 + length:]
+                else:
+                    if len(buf) < offset + length:
+                        break
+                    payload = buf[offset:offset + length]
+                    buf = buf[offset + length:]
+                if opcode == 0x8:  # close
+                    raise ConnectionError
+                if opcode == 0x9:  # ping -> pong
+                    conn.sendall(struct.pack("!BB", 0x8A, len(payload)) + payload)
+                elif opcode == 0x1 and self.on_message:
+                    try:
+                        self.on_message(payload.decode())
+                    except Exception:
+                        pass
 
     def broadcast(self, text):
         payload = text.encode()
@@ -118,7 +166,16 @@ class WSServer:
 
 
 class BellSpectrum:
-    """FFT -> log-spaced bands -> mirrored bell layout with gaussian envelope."""
+    """FFT -> log-spaced bands -> mirrored bell layout with gaussian envelope.
+
+    Tunable at runtime via set_params() (driven by the plasmoid config UI):
+      bellWidth  - gaussian sigma as fraction of bar count (wider = flatter bell)
+      bellFloor  - envelope floor, how much the edge bars still react (0..1)
+      reactivity - 0 floaty .. 1 snappy (controls release speed)
+      gamma      - response curve; <1 boosts quiet detail (punchier)
+    """
+
+    DEFAULTS = {"bellWidth": 0.45, "bellFloor": 0.3, "reactivity": 0.65, "gamma": 0.8}
 
     def __init__(self, bar_count):
         self.bar_count = bar_count
@@ -132,36 +189,60 @@ class BellSpectrum:
             if len(idx) == 0:
                 idx = np.array([np.argmin(np.abs(freqs - edges[i]))])
             self.bands.append(idx)
+        # treble tilt: raw spectra are bass-heavy; lift the high bands so the
+        # outer bars get visible motion
+        self.tilt = (np.arange(self.half) + 1.0) ** 0.3
         # bar index -> band index by distance from center (bass in middle)
         center = (bar_count - 1) / 2.0
-        dist = np.abs(np.arange(bar_count) - center)
-        self.band_of_bar = np.minimum(dist.astype(int), self.half - 1)
-        sigma = bar_count * 0.27
-        self.envelope = np.exp(-0.5 * (dist / sigma) ** 2)
+        self.dist = np.abs(np.arange(bar_count) - center)
+        self.band_of_bar = np.minimum(self.dist.astype(int), self.half - 1)
         self.peak = 1e-6
         self.smoothed = np.zeros(self.half)
+        self.lock = threading.Lock()
+        self.params = dict(self.DEFAULTS)
+        self._rebuild_envelope()
+
+    def _rebuild_envelope(self):
+        sigma = max(self.bar_count * self.params["bellWidth"], 1e-3)
+        gauss = np.exp(-0.5 * (self.dist / sigma) ** 2)
+        floor = min(max(self.params["bellFloor"], 0.0), 1.0)
+        self.envelope = floor + (1.0 - floor) * gauss
+
+    def set_params(self, updates):
+        with self.lock:
+            for key in self.DEFAULTS:
+                if key in updates:
+                    self.params[key] = float(updates[key])
+            self._rebuild_envelope()
 
     def process(self, samples):
+        with self.lock:
+            params = dict(self.params)
+            envelope = self.envelope
+
         rms = float(np.sqrt(np.mean(samples**2)))
         if rms < 1e-5:  # silence
             self.smoothed *= 0.8
-            vals = self.smoothed
         else:
             spectrum = np.abs(np.fft.rfft(samples * self.window))
             vals = np.array([spectrum[idx].mean() for idx in self.bands])
-            vals = np.sqrt(vals)  # compress dynamic range
-            # automatic gain: rolling peak with slow decay
-            self.peak = max(self.peak * 0.998, float(vals.max()), 1e-6)
+            vals = np.sqrt(vals) * self.tilt  # compress range, lift highs
+            # automatic gain: rolling peak, fast enough to track song dynamics
+            self.peak = max(self.peak * 0.995, float(vals.max()), 1e-6)
             vals = vals / self.peak
-            # temporal smoothing (backend-side, client smooths further)
-            self.smoothed = self.smoothed * 0.55 + vals * 0.45
-            vals = self.smoothed
-        bars = vals[self.band_of_bar] * self.envelope
+            # fast attack, tunable release
+            release = 0.97 - 0.17 * min(max(params["reactivity"], 0.0), 1.0)
+            rising = vals > self.smoothed
+            self.smoothed[rising] = self.smoothed[rising] * 0.3 + vals[rising] * 0.7
+            self.smoothed[~rising] = np.maximum(
+                self.smoothed[~rising] * release, vals[~rising]
+            )
+        shaped = np.clip(self.smoothed, 0.0, 1.0) ** max(params["gamma"], 0.05)
+        bars = shaped[self.band_of_bar] * envelope
         return np.clip(bars, 0.0, 1.0)
 
 
-def capture_loop(server, bar_count):
-    spectrum = BellSpectrum(bar_count)
+def capture_loop(server, spectrum):
     ring = np.zeros(FFT_SIZE, dtype=np.float32)
     hop_bytes = HOP_SIZE * 4
 
@@ -204,12 +285,17 @@ def main():
     parser.add_argument("--bars", type=int, default=32)
     args = parser.parse_args()
 
+    spectrum = BellSpectrum(args.bars)
+
+    def on_message(text):
+        spectrum.set_params(json.loads(text))
+
     try:
-        server = WSServer("127.0.0.1", args.port)
+        server = WSServer("127.0.0.1", args.port, on_message=on_message)
     except OSError:
         sys.exit(0)  # already running
 
-    capture_loop(server, args.bars)
+    capture_loop(server, spectrum)
 
 
 if __name__ == "__main__":

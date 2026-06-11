@@ -74,6 +74,11 @@ KCM.SimpleKCM {
 
     // Audio visualization
     property alias cfg_audioVisualization: audioVisualization.checked
+    property alias cfg_vizBellWidth: vizBellWidth.value
+    property alias cfg_vizBellFloor: vizBellFloor.value
+    property alias cfg_vizReactivity: vizReactivity.value
+    property alias cfg_vizPunch: vizPunch.value
+    property alias cfg_vizIntensity: vizIntensity.value
 
     // Helper functions to get effective fonts with fallback
     function getEffectiveMiniPlayerSongNameFont() {
@@ -1020,6 +1025,71 @@ KCM.SimpleKCM {
         CheckBox {
             id: audioVisualization
             text: i18n("Enable audio visualization")
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Bell width:")
+            enabled: audioVisualization.checked
+            Slider {
+                id: vizBellWidth
+                from: 0.15
+                to: 0.9
+                stepSize: 0.05
+                Layout.preferredWidth: 200
+            }
+            Label { text: vizBellWidth.value.toFixed(2) }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Edge response:")
+            enabled: audioVisualization.checked
+            Slider {
+                id: vizBellFloor
+                from: 0
+                to: 0.8
+                stepSize: 0.05
+                Layout.preferredWidth: 200
+            }
+            Label { text: vizBellFloor.value.toFixed(2) }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Reactivity:")
+            enabled: audioVisualization.checked
+            Slider {
+                id: vizReactivity
+                from: 0
+                to: 1
+                stepSize: 0.05
+                Layout.preferredWidth: 200
+            }
+            Label { text: vizReactivity.value.toFixed(2) }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Punch:")
+            enabled: audioVisualization.checked
+            Slider {
+                id: vizPunch
+                from: 0.4
+                to: 1.5
+                stepSize: 0.05
+                Layout.preferredWidth: 200
+            }
+            Label { text: vizPunch.value.toFixed(2) }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Intensity:")
+            enabled: audioVisualization.checked
+            Slider {
+                id: vizIntensity
+                from: 0.1
+                to: 1.2
+                stepSize: 0.05
+                Layout.preferredWidth: 200
+            }
+            Label { text: vizIntensity.value.toFixed(2) }
         }
 
         Kirigami.Separator {

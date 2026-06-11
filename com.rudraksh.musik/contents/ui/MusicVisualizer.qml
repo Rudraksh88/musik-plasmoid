@@ -23,12 +23,35 @@ Item {
     readonly property bool liveData: socket.status === WebSocket.Open
                                      && liveHeights.length === barCount
 
+    // Tuning knobs (sent live to the backend, see ConfigGeneral)
+    property real bellWidth: 0.45    // gaussian sigma / barCount; wider = flatter
+    property real bellFloor: 0.3     // edge bars reactivity floor (0..1)
+    property real reactivity: 0.65   // 0 floaty .. 1 snappy
+    property real punch: 0.8         // gamma; <1 boosts quiet detail
+
+    onBellWidthChanged: pushConfig()
+    onBellFloorChanged: pushConfig()
+    onReactivityChanged: pushConfig()
+    onPunchChanged: pushConfig()
+
+    function pushConfig() {
+        if (socket.status === WebSocket.Open) {
+            socket.sendTextMessage(JSON.stringify({
+                bellWidth: bellWidth,
+                bellFloor: bellFloor,
+                reactivity: reactivity,
+                gamma: punch
+            }))
+        }
+    }
+
     property var barHeights: new Array(barCount).fill(0)
     property var peakHeights: new Array(barCount).fill(0)
     property var targetHeights: new Array(barCount).fill(0)
     property real time: 0
 
-    readonly property real smoothing: 0.85
+    // Client-side smoothing follows the reactivity knob (snappier = less lag)
+    readonly property real smoothing: 0.85 - reactivity * 0.25
     readonly property real peakFallSpeed: 0.02
     readonly property real minHeight: 0.05
     readonly property real barSpacing: 2
@@ -74,6 +97,12 @@ Item {
         onTextMessageReceived: (message) => {
             root.liveHeights = JSON.parse(message)
             root.lastDataTime = Date.now()
+        }
+
+        onStatusChanged: {
+            if (socket.status === WebSocket.Open) {
+                root.pushConfig()
+            }
         }
     }
 

@@ -122,6 +122,21 @@
         <entry name="audioVisualization" type="Bool">
             <default>true</default>
         </entry>
+        <entry name="vizBellWidth" type="Double"> <!-- bell curve width: sigma / barCount -->
+            <default>0.45</default>
+        </entry>
+        <entry name="vizBellFloor" type="Double"> <!-- how much edge bars still react -->
+            <default>0.3</default>
+        </entry>
+        <entry name="vizReactivity" type="Double"> <!-- 0 floaty .. 1 snappy -->
+            <default>0.65</default>
+        </entry>
+        <entry name="vizPunch" type="Double"> <!-- gamma; lower boosts quiet detail -->
+            <default>0.8</default>
+        </entry>
+        <entry name="vizIntensity" type="Double"> <!-- overall bar height scale -->
+            <default>0.5</default>
+        </entry>
 
         <entry name="panelIcon" type="string">
             <default>view-media-track</default>
