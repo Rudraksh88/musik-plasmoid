@@ -118,6 +118,10 @@
             <default>32</default>
         </entry>
 
+        <entry name="pin" type="Bool"> <!-- keep popup open on focus loss -->
+            <default>false</default>
+        </entry>
+
         <!-- Audio visualizer setting -->
         <entry name="audioVisualization" type="Bool">
             <default>true</default>

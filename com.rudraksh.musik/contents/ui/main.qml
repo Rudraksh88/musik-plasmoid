@@ -15,6 +15,20 @@ PlasmoidItem {
 
     Plasmoid.status: PlasmaCore.Types.HiddenStatus
 
+    // Pin: keep popup open while it loses focus (e.g. tuning settings)
+    hideOnWindowDeactivate: !plasmoid.configuration.pin
+
+    Plasmoid.contextualActions: [
+        PlasmaCore.Action {
+            text: i18n("Keep Open")
+            icon.name: "window-pin"
+            priority: PlasmaCore.Action.LowPriority
+            checkable: true
+            checked: plasmoid.configuration.pin
+            onTriggered: checked => plasmoid.configuration.pin = checked
+        }
+    ]
+
     // property color dominantColor: "#A8FFFFFF"  // Default color
     property color dominantColor: plasmoid.configuration.useCustomColor ? plasmoid.configuration.accentColor : "#A8FFFFFF"
     property color defaultActiveColor: "white"
@@ -980,6 +994,30 @@ PlasmoidItem {
         Layout.minimumHeight: column.implicitHeight
 
         Layout.maximumWidth: 500
+
+        HoverHandler {
+            id: fullRepHover
+        }
+
+        // Pin: keep the popup open while tuning settings
+        PlasmaComponents3.ToolButton {
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.margins: Kirigami.Units.smallSpacing
+            z: 100
+            icon.name: "window-pin"
+            checkable: true
+            checked: plasmoid.configuration.pin
+            onToggled: plasmoid.configuration.pin = checked
+            opacity: checked || fullRepHover.hovered ? (checked ? 1.0 : 0.6) : 0
+            visible: opacity > 0
+            Behavior on opacity {
+                NumberAnimation { duration: 150 }
+            }
+            PlasmaComponents3.ToolTip {
+                text: i18n("Keep Open")
+            }
+        }
 
         ColumnLayout {
             id: column
