@@ -243,7 +243,7 @@ Item {
                 source: canvas
                 angle: 0            // 0 = vertical
                 length: root.trailLength
-                samples: 32
+                samples: 64
                 cached: false
                 visible: root.motionTrail && root.trailLength > 0
                 opacity: 0.9

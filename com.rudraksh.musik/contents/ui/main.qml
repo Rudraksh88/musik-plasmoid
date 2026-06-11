@@ -1218,7 +1218,16 @@ PlasmoidItem {
                     // Center horizontally relative to controlsContainer
                     x: (controlsContainer.width - width) / 2
                     anchors.bottom: parent.bottom
+                    anchors.bottomMargin: plasmoid.configuration.vizOffsetY
                     z: 0
+
+                    // Scale whole viz from its bottom center, proportions kept
+                    transform: Scale {
+                        origin.x: visualizer.width / 2
+                        origin.y: visualizer.height
+                        xScale: plasmoid.configuration.vizScale
+                        yScale: plasmoid.configuration.vizScale
+                    }
 
                     isPlaying: player.playbackStatus === Mpris.PlaybackStatus.Playing
                     accentColor: widget.dominantColor

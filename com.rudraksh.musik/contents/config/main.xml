@@ -150,6 +150,12 @@
         <entry name="vizTrailLength" type="Double"> <!-- vertical motion blur length -->
             <default>70</default>
         </entry>
+        <entry name="vizOffsetY" type="Int"> <!-- vertical offset, positive = up -->
+            <default>0</default>
+        </entry>
+        <entry name="vizScale" type="Double"> <!-- whole-viz scale, proportions kept -->
+            <default>1.0</default>
+        </entry>
 
         <entry name="panelIcon" type="string">
             <default>view-media-track</default>

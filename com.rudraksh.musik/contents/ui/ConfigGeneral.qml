@@ -82,6 +82,8 @@ KCM.SimpleKCM {
     property alias cfg_vizGlowRadius: vizGlowRadius.value
     property alias cfg_vizMotionTrail: vizMotionTrail.checked
     property alias cfg_vizTrailLength: vizTrailLength.value
+    property alias cfg_vizOffsetY: vizOffsetY.value
+    property alias cfg_vizScale: vizScale.value
 
     // Helper functions to get effective fonts with fallback
     function getEffectiveMiniPlayerSongNameFont() {
@@ -1120,11 +1122,37 @@ KCM.SimpleKCM {
             Slider {
                 id: vizTrailLength
                 from: 0
-                to: 150
-                stepSize: 5
+                to: 400
+                stepSize: 10
                 Layout.preferredWidth: 200
             }
             Label { text: Math.round(vizTrailLength.value) }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Vertical offset:")
+            enabled: audioVisualization.checked
+            Slider {
+                id: vizOffsetY
+                from: -80
+                to: 80
+                stepSize: 5
+                Layout.preferredWidth: 200
+            }
+            Label { text: Math.round(vizOffsetY.value) + " px" }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Size scale:")
+            enabled: audioVisualization.checked
+            Slider {
+                id: vizScale
+                from: 0.4
+                to: 1.5
+                stepSize: 0.05
+                Layout.preferredWidth: 200
+            }
+            Label { text: vizScale.value.toFixed(2) + "x" }
         }
 
         Kirigami.Separator {
