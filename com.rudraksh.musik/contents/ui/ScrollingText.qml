@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import org.kde.plasma.components as PlasmaComponents3
 import QtQuick.Effects
+import Qt5Compat.GraphicalEffects
 
 Item {
     id: root
@@ -34,6 +35,36 @@ Item {
     width: Math.min(maxWidth, textMetrics.width)
     height: mainText.height
     clip: true
+
+    // Edge fade mask. Right edge fades whenever the text overflows;
+    // left edge fades only while the text is scrolling / displaced, and
+    // eases out once it has settled back at the start position.
+    readonly property bool textSettled: !normalScrollAnimation.running
+                                        && !dampingAnimation.running
+                                        && scrollContainer.x >= -0.5
+    property real leftFade: shouldScroll && !textSettled ? 1 : 0
+    Behavior on leftFade {
+        NumberAnimation {
+            duration: 400
+            easing.type: Easing.OutQuad
+        }
+    }
+    readonly property real fadeRatio: Math.min(0.2, 24 / Math.max(width, 1))
+
+    layer.enabled: shouldScroll
+    layer.effect: OpacityMask {
+        maskSource: Rectangle {
+            width: root.width
+            height: root.height
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: Qt.rgba(0, 0, 0, 1.0 - root.leftFade) }
+                GradientStop { position: root.fadeRatio; color: "black" }
+                GradientStop { position: 1.0 - root.fadeRatio; color: "black" }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+        }
+    }
 
     Layout.preferredHeight: height
     Layout.preferredWidth: width
