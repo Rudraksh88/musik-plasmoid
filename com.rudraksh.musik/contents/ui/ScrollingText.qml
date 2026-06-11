@@ -45,7 +45,7 @@ Item {
     property real leftFade: shouldScroll && !textSettled ? 1 : 0
     Behavior on leftFade {
         NumberAnimation {
-            duration: 400
+            duration: 200
             easing.type: Easing.OutQuad
         }
     }
