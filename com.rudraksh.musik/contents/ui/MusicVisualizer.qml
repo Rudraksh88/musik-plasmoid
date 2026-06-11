@@ -64,9 +64,16 @@ Item {
     // Zune-style snow cap: body keeps the album color untouched, only the
     // very peaks blend into a hotter bright variant. Grayscale album art
     // falls back to the classic Zune hot pink cap.
+    // Cap tint modes: 0 = fixed -18° shift, 1 = shift away from green
+    // (hue below green goes down toward red/pink, above green goes up
+    // toward blue/violet — caps drift to "hot" ends of the spectrum)
+    property int capHueMode: 1
     readonly property bool achromatic: accentColor.hsvSaturation < 0.12
+    readonly property real capHueShift: capHueMode === 1
+        ? (accentColor.hsvHue < 0.33 ? -0.06 : 0.06)
+        : -0.05
     readonly property color peakColor: achromatic ? "#FF2D78" : Qt.hsva(
-        (accentColor.hsvHue + 1.0 - 0.05) % 1.0,
+        (accentColor.hsvHue + 1.0 + capHueShift) % 1.0,
         Math.min(accentColor.hsvSaturation * 1.3 + 0.1, 1.0),
         Math.min(accentColor.hsvValue * 1.35 + 0.25, 1.0),
         1.0

@@ -1239,6 +1239,7 @@ PlasmoidItem {
                     glowRadius: plasmoid.configuration.vizGlowRadius
                     motionTrail: plasmoid.configuration.vizMotionTrail
                     trailLength: plasmoid.configuration.vizTrailLength
+                    capHueMode: plasmoid.configuration.vizCapHueMode
                     visible: plasmoid.configuration.audioVisualization
                 }
 

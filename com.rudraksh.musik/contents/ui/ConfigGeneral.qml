@@ -84,6 +84,7 @@ KCM.SimpleKCM {
     property alias cfg_vizTrailLength: vizTrailLength.value
     property alias cfg_vizOffsetY: vizOffsetY.value
     property alias cfg_vizScale: vizScale.value
+    property alias cfg_vizCapHueMode: vizCapHueMode.currentIndex
 
     // Helper functions to get effective fonts with fallback
     function getEffectiveMiniPlayerSongNameFont() {
@@ -1153,6 +1154,16 @@ KCM.SimpleKCM {
                 Layout.preferredWidth: 200
             }
             Label { text: vizScale.value.toFixed(2) + "x" }
+        }
+
+        ComboBox {
+            id: vizCapHueMode
+            Kirigami.FormData.label: i18n("Peak cap tint:")
+            enabled: audioVisualization.checked
+            model: [
+                i18n("Fixed shift (-18°)"),
+                i18n("Away from green")
+            ]
         }
 
         Kirigami.Separator {

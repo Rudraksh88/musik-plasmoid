@@ -198,6 +198,7 @@ class BellSpectrum:
         self.band_of_bar = np.minimum(self.dist.astype(int), self.half - 1)
         self.peak = 1e-6
         self.smoothed = np.zeros(self.half)
+        self.slow_avg = np.zeros(self.half)
         self.lock = threading.Lock()
         self.params = dict(self.DEFAULTS)
         self._rebuild_envelope()
@@ -230,6 +231,12 @@ class BellSpectrum:
             # automatic gain: rolling peak, fast enough to track song dynamics
             self.peak = max(self.peak * 0.995, float(vals.max()), 1e-6)
             vals = vals / self.peak
+            # onset emphasis: sustained energy normalizes high and flattens
+            # the curve, so reward the *rise* above each band's short-term
+            # average — kicks spike to full while steady rumble settles mid
+            self.slow_avg = self.slow_avg * 0.92 + vals * 0.08
+            flux = np.clip((vals - self.slow_avg) * 2.5, 0.0, 1.0)
+            vals = 0.55 * vals + 0.45 * flux
             # fast attack, tunable release
             release = 0.97 - 0.17 * min(max(params["reactivity"], 0.0), 1.0)
             rising = vals > self.smoothed

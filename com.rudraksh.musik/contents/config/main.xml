@@ -156,6 +156,9 @@
         <entry name="vizScale" type="Double"> <!-- whole-viz scale, proportions kept -->
             <default>1.0</default>
         </entry>
+        <entry name="vizCapHueMode" type="Int"> <!-- 0 fixed shift, 1 away from green -->
+            <default>1</default>
+        </entry>
 
         <entry name="panelIcon" type="string">
             <default>view-media-track</default>
