@@ -141,6 +141,15 @@
         <entry name="vizIntensity" type="Double"> <!-- overall bar height scale -->
             <default>0.5</default>
         </entry>
+        <entry name="vizGlowRadius" type="Double"> <!-- soft glow blur radius -->
+            <default>120</default>
+        </entry>
+        <entry name="vizMotionTrail" type="Bool"> <!-- vertical motion blur style -->
+            <default>false</default>
+        </entry>
+        <entry name="vizTrailLength" type="Double"> <!-- vertical motion blur length -->
+            <default>70</default>
+        </entry>
 
         <entry name="panelIcon" type="string">
             <default>view-media-track</default>

@@ -61,16 +61,27 @@ Item {
     property bool isStopping: false
     property real stopProgress: 0
 
-    // Generate harmonious secondary color
-    readonly property color secondaryColor: {
-        const hue = accentColor.hsvHue
-        const sat = accentColor.hsvSaturation
-        const val = accentColor.hsvValue
+    // Zune-style snow cap: body keeps the album color untouched, only the
+    // very peaks blend into a hotter bright variant. Grayscale album art
+    // falls back to the classic Zune hot pink cap.
+    readonly property bool achromatic: accentColor.hsvSaturation < 0.12
+    readonly property color peakColor: achromatic ? "#FF2D78" : Qt.hsva(
+        (accentColor.hsvHue + 1.0 - 0.05) % 1.0,
+        Math.min(accentColor.hsvSaturation * 1.3 + 0.1, 1.0),
+        Math.min(accentColor.hsvValue * 1.35 + 0.25, 1.0),
+        1.0
+    )
 
-        return Qt.hsva(
-            (hue + 0.15) % 1.0,  // +54 degrees
-            sat * 1.1,
-            val * 0.95,
+    // Effect knobs (bound to config in main.qml)
+    property real glowRadius: 120
+    property real trailLength: 70
+    property bool motionTrail: false
+
+    function mixColor(c1, c2, t) {
+        return Qt.rgba(
+            c1.r * (1 - t) + c2.r * t,
+            c1.g * (1 - t) + c2.g * t,
+            c1.b * (1 - t) + c2.b * t,
             1.0
         )
     }
@@ -188,27 +199,19 @@ Item {
 
                     var barWidth = (w - (barSpacing * (barCount - 1))) / barCount
 
-                    // Modified gradient with dominant accent color and subtle secondary color
-                    var gradient = ctx.createLinearGradient(0, h, 0, h * 1)
-
-                    // Start with very subtle secondary color (15% mix)
-                    gradient.addColorStop(1, Qt.rgba(
-                        accentColor.r * 0.85 + secondaryColor.r * 0.45,
-                        accentColor.g * 0.85 + secondaryColor.g * 0.45,
-                        accentColor.b * 0.85 + secondaryColor.b * 0.45,
-                        0.6
-                    ))
-
-                    // Transition quickly to accent-dominant color
-                    gradient.addColorStop(0.8, Qt.rgba(
-                        accentColor.r * 0.95 + secondaryColor.r * 0.25,
-                        accentColor.g * 0.95 + secondaryColor.g * 0.25,
-                        accentColor.b * 0.95 + secondaryColor.b * 0.25,
-                        1
-                    ))
-
-                    // Pure accent color at the peak
-                    gradient.addColorStop(0, Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.8))
+                    // Snow-cap gradient, anchored in screen space but scaled
+                    // to the tallest *reachable* bar height (depends on
+                    // intensity) so the hot zone is actually hit by peaks.
+                    var peak = root.peakColor
+                    var base = root.accentColor
+                    var mid = mixColor(base, peak, 0.45)
+                    var maxReach = Math.min((minHeight + 1.3 * intensity) * h, h)
+                    var gradient = ctx.createLinearGradient(0, h, 0, h - maxReach)
+                    gradient.addColorStop(0.0, Qt.rgba(base.r, base.g, base.b, 0.85))
+                    gradient.addColorStop(0.6, Qt.rgba(base.r, base.g, base.b, 1.0))
+                    gradient.addColorStop(0.8, Qt.rgba(mid.r, mid.g, mid.b, 1.0))
+                    gradient.addColorStop(0.92, Qt.rgba(peak.r, peak.g, peak.b, 1.0))
+                    gradient.addColorStop(1.0, Qt.rgba(peak.r, peak.g, peak.b, 1.0))
 
                     // Draw bars
                     for (var i = 0; i < barCount; i++) {
@@ -228,10 +231,22 @@ Item {
             GaussianBlur {
                 anchors.fill: canvas
                 source: canvas
-                radius: 120
+                radius: root.glowRadius
                 samples: 120
                 cached: true
-                opacity: 1
+                opacity: root.motionTrail ? 0.85 : 1.0
+            }
+
+            // Optional vertical motion-blur streaks over the glow
+            DirectionalBlur {
+                anchors.fill: canvas
+                source: canvas
+                angle: 0            // 0 = vertical
+                length: root.trailLength
+                samples: 32
+                cached: false
+                visible: root.motionTrail && root.trailLength > 0
+                opacity: 0.9
             }
         }
     }

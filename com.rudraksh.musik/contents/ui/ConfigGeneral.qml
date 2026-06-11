@@ -79,6 +79,9 @@ KCM.SimpleKCM {
     property alias cfg_vizReactivity: vizReactivity.value
     property alias cfg_vizPunch: vizPunch.value
     property alias cfg_vizIntensity: vizIntensity.value
+    property alias cfg_vizGlowRadius: vizGlowRadius.value
+    property alias cfg_vizMotionTrail: vizMotionTrail.checked
+    property alias cfg_vizTrailLength: vizTrailLength.value
 
     // Helper functions to get effective fonts with fallback
     function getEffectiveMiniPlayerSongNameFont() {
@@ -1090,6 +1093,38 @@ KCM.SimpleKCM {
                 Layout.preferredWidth: 200
             }
             Label { text: vizIntensity.value.toFixed(2) }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Glow:")
+            enabled: audioVisualization.checked
+            Slider {
+                id: vizGlowRadius
+                from: 0
+                to: 150
+                stepSize: 5
+                Layout.preferredWidth: 200
+            }
+            Label { text: Math.round(vizGlowRadius.value) }
+        }
+
+        CheckBox {
+            id: vizMotionTrail
+            text: i18n("Vertical motion blur (streak style)")
+            enabled: audioVisualization.checked
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Trail length:")
+            enabled: audioVisualization.checked && vizMotionTrail.checked
+            Slider {
+                id: vizTrailLength
+                from: 0
+                to: 150
+                stepSize: 5
+                Layout.preferredWidth: 200
+            }
+            Label { text: Math.round(vizTrailLength.value) }
         }
 
         Kirigami.Separator {

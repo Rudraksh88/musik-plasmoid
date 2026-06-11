@@ -1227,6 +1227,9 @@ PlasmoidItem {
                     bellFloor: plasmoid.configuration.vizBellFloor
                     reactivity: plasmoid.configuration.vizReactivity
                     punch: plasmoid.configuration.vizPunch
+                    glowRadius: plasmoid.configuration.vizGlowRadius
+                    motionTrail: plasmoid.configuration.vizMotionTrail
+                    trailLength: plasmoid.configuration.vizTrailLength
                     visible: plasmoid.configuration.audioVisualization
                 }
 
