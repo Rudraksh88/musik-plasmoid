@@ -159,6 +159,9 @@
         <entry name="vizCapHueMode" type="Int"> <!-- 0 fixed shift, 1 away from green -->
             <default>1</default>
         </entry>
+        <entry name="vizCapSize" type="Double"> <!-- fraction of height in pure cap color -->
+            <default>0.25</default>
+        </entry>
 
         <entry name="panelIcon" type="string">
             <default>view-media-track</default>

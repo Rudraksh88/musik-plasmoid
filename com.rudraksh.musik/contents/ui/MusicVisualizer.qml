@@ -68,9 +68,13 @@ Item {
     // (hue below green goes down toward red/pink, above green goes up
     // toward blue/violet — caps drift to "hot" ends of the spectrum)
     property int capHueMode: 1
+    // Fraction of the reachable height that is pure cap color; the blend
+    // toward it starts ~60% deeper. Bigger = cap visible on normal bars,
+    // not just sharp spikes.
+    property real capSize: 0.25
     readonly property bool achromatic: accentColor.hsvSaturation < 0.12
     readonly property real capHueShift: capHueMode === 1
-        ? (accentColor.hsvHue < 0.33 ? -0.06 : 0.06)
+        ? (accentColor.hsvHue < 0.33 ? -0.09 : 0.09)
         : -0.05
     readonly property color peakColor: achromatic ? "#FF2D78" : Qt.hsva(
         (accentColor.hsvHue + 1.0 + capHueShift) % 1.0,
@@ -213,11 +217,13 @@ Item {
                     var base = root.accentColor
                     var mid = mixColor(base, peak, 0.45)
                     var maxReach = Math.min((minHeight + 1.3 * intensity) * h, h)
+                    var capStart = 1.0 - Math.min(Math.max(root.capSize, 0.05), 0.6)
+                    var mixStart = Math.max(1.0 - root.capSize * 1.6, 0.2)
                     var gradient = ctx.createLinearGradient(0, h, 0, h - maxReach)
                     gradient.addColorStop(0.0, Qt.rgba(base.r, base.g, base.b, 0.85))
-                    gradient.addColorStop(0.6, Qt.rgba(base.r, base.g, base.b, 1.0))
-                    gradient.addColorStop(0.8, Qt.rgba(mid.r, mid.g, mid.b, 1.0))
-                    gradient.addColorStop(0.92, Qt.rgba(peak.r, peak.g, peak.b, 1.0))
+                    gradient.addColorStop(mixStart * 0.75, Qt.rgba(base.r, base.g, base.b, 1.0))
+                    gradient.addColorStop(mixStart, Qt.rgba(mid.r, mid.g, mid.b, 1.0))
+                    gradient.addColorStop(capStart, Qt.rgba(peak.r, peak.g, peak.b, 1.0))
                     gradient.addColorStop(1.0, Qt.rgba(peak.r, peak.g, peak.b, 1.0))
 
                     // Draw bars

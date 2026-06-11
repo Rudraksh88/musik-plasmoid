@@ -85,6 +85,7 @@ KCM.SimpleKCM {
     property alias cfg_vizOffsetY: vizOffsetY.value
     property alias cfg_vizScale: vizScale.value
     property alias cfg_vizCapHueMode: vizCapHueMode.currentIndex
+    property alias cfg_vizCapSize: vizCapSize.value
 
     // Helper functions to get effective fonts with fallback
     function getEffectiveMiniPlayerSongNameFont() {
@@ -1164,6 +1165,19 @@ KCM.SimpleKCM {
                 i18n("Fixed shift (-18°)"),
                 i18n("Away from green")
             ]
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Cap size:")
+            enabled: audioVisualization.checked
+            Slider {
+                id: vizCapSize
+                from: 0.05
+                to: 0.6
+                stepSize: 0.05
+                Layout.preferredWidth: 200
+            }
+            Label { text: Math.round(vizCapSize.value * 100) + "%" }
         }
 
         Kirigami.Separator {
