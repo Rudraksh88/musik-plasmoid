@@ -150,6 +150,9 @@
         <entry name="vizTrailLength" type="Double"> <!-- vertical motion blur length -->
             <default>70</default>
         </entry>
+        <entry name="vizStreakSoften" type="Double"> <!-- gaussian pass over streaks -->
+            <default>32</default>
+        </entry>
         <entry name="vizOffsetY" type="Int"> <!-- vertical offset, positive = up -->
             <default>0</default>
         </entry>

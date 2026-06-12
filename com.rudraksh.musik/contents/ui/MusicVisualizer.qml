@@ -87,6 +87,7 @@ Item {
     property real glowRadius: 120
     property real trailLength: 70
     property bool motionTrail: false
+    property real streakSoften: 32
 
     function mixColor(c1, c2, t) {
         return Qt.rgba(
@@ -231,10 +232,15 @@ Item {
                         var x = i * (barWidth + barSpacing)
                         var barHeight = barHeights[i] * h
 
-                        // Draw overlapping rectangles with the gradient
+                        // Draw overlapping rectangles with the gradient.
+                        // Glow-only mode uses slimmer slabs: wide overdraw
+                        // merges the tall center bars into a boxy block once
+                        // blurred; streak mode keeps the fat fill it needs.
+                        var grow = root.motionTrail ? 1.8 : 1.2
+                        var growStep = root.motionTrail ? 0.4 : 0.25
                         for (var j = 0; j < 3; j++) {
                             ctx.fillStyle = gradient
-                            var expandedWidth = barWidth * (1.8 + j * 0.4)
+                            var expandedWidth = barWidth * (grow + j * growStep)
                             ctx.fillRect(x - expandedWidth/3, h - barHeight, expandedWidth, barHeight)
                         }
                     }
@@ -250,12 +256,25 @@ Item {
                 opacity: root.motionTrail ? 0.85 : 1.0
             }
 
-            // Optional vertical motion-blur streaks over the glow
+            // Optional vertical motion-blur streaks over the glow.
+            // Hidden: only feeds the soft pass below.
             DirectionalBlur {
+                id: streaks
                 anchors.fill: canvas
                 source: canvas
                 angle: 0            // 0 = vertical
                 length: root.trailLength
+                samples: 64
+                cached: false
+                visible: false
+            }
+
+            // Soft pass over the streaks — diffuses the hard streak edges
+            // for the hazy Zune look
+            GaussianBlur {
+                anchors.fill: canvas
+                source: streaks
+                radius: root.streakSoften
                 samples: 64
                 cached: false
                 visible: root.motionTrail && root.trailLength > 0

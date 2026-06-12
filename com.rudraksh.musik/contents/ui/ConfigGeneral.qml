@@ -83,6 +83,7 @@ KCM.SimpleKCM {
     property alias cfg_vizGlowRadius: vizGlowRadius.value
     property alias cfg_vizMotionTrail: vizMotionTrail.checked
     property alias cfg_vizTrailLength: vizTrailLength.value
+    property alias cfg_vizStreakSoften: vizStreakSoften.value
     property alias cfg_vizOffsetY: vizOffsetY.value
     property alias cfg_vizScale: vizScale.value
     property alias cfg_vizCapHueMode: vizCapHueMode.currentIndex
@@ -1160,6 +1161,19 @@ KCM.SimpleKCM {
                 Layout.preferredWidth: 200
             }
             Label { text: Math.round(vizTrailLength.value) }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Streak softness:")
+            enabled: audioVisualization.checked && vizMotionTrail.checked
+            Slider {
+                id: vizStreakSoften
+                from: 0
+                to: 100
+                stepSize: 2
+                Layout.preferredWidth: 200
+            }
+            Label { text: Math.round(vizStreakSoften.value) }
         }
 
         RowLayout {
