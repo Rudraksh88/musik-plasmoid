@@ -15,6 +15,10 @@ PlasmoidItem {
 
     Plasmoid.status: PlasmaCore.Types.HiddenStatus
 
+    // Disable unnecesary tooltip
+    toolTipMainText: ""
+    toolTipSubText: ""
+
     // Pin: keep popup open while it loses focus (e.g. tuning settings)
     hideOnWindowDeactivate: !plasmoid.configuration.pin
 
