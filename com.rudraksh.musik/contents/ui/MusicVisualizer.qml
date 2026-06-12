@@ -12,7 +12,7 @@ Item {
     property bool isPlaying: false
     property color accentColor: "#1d99f3"
     property bool showPeaks: true
-    property int barCount: 32
+    property int barCount: 48
     property real intensity: 1.0
 
     // Live audio data (Zune-style bell spectrum from the backend)
