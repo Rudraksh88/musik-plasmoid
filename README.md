@@ -9,7 +9,7 @@ Engineered with a love for music, skinned in Zune nostalgia, and refined down to
 MusiK lets you fine-tune the font settings for both the mini and full player views. Choose your preferred font family, size, adjust letter spacing, and toggle capitalization to match your desktop’s personality — or your mood.
 
 - **Zune-Inspired Waveform Visualizer**
-A sleek, animated waveform inspired by the iconic Zune interface.
+A sleek waveform inspired by the iconic Zune interface that reacts to your *actual system audio* in real time — bass peaks bloom in the center and fan out toward the highs at the edges. Fully tunable from the settings: bell shape, reactivity, punch, glow, motion blur, peak cap tint and more.
 
 - **Adaptive Accents from Album Art**
 MusiK samples the dominant color from your album art and uses it to accent key UI elements — like the audio visualizer, seek bar, text, and buttons — creating a player that visually matches every track.
@@ -36,6 +36,18 @@ MusiK is built on the MPRIS2 protocol, ensuring compatibility with a wide range 
 ![Demo Long](images/DemoFull.gif)
 
 ## Installation
+### Requirements
+The widget itself needs nothing beyond Plasma 6. The live audio visualizer is powered by a tiny Python backend that **ships inside the widget and starts automatically** — there is nothing to install or configure separately. It only relies on:
+
+| Dependency | Install | Notes |
+|---|---|---|
+| `python3` | — | Preinstalled on virtually every distro |
+| `numpy` | `pacman -S python-numpy` · `apt install python3-numpy` · `dnf install python3-numpy` | Used for the FFT |
+| `parec` | — | Ships with `libpulse` / `pulseaudio-utils`, already present on any PipeWire or PulseAudio desktop (any Plasma system) |
+
+If anything is missing, the widget still works fine — the visualizer just falls back to a gentle non-reactive animation instead of live audio.
+
+### Install
 1. Clone the repository:
 ```bash
 git clone https://github.com/Rudraksh88/musik-plasmoid /tmp/musik-plasmoid
@@ -57,7 +69,7 @@ kpackagetool6 -r com.rudraksh.musik --type Plasma/Applet
 ```
 
 ## Roadmap
-- [ ] Add dynamic waveform visualizer that reacts to the music.
+- [x] Add dynamic waveform visualizer that reacts to the music.
 - [ ] Add settings for changing sizes of icons and other UI elements.
 - [ ] Text Animations on song change.
 - [ ] Opaque backgrounds (irrespective of the Plasma theme)

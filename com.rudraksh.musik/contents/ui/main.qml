@@ -1022,13 +1022,18 @@ PlasmoidItem {
         ColumnLayout {
             id: column
             clip: true
-            // Add rounded corners to the column using mask
+            // Clip everything (incl. the visualizer overflow) to a rounded
+            // rect. Plasma's SVG theme hints don't tell us the bg corner
+            // radius, so the bottom rounding is a manual, configurable knob.
             layer.enabled: true
             layer.effect: OpacityMask {
                 maskSource: Rectangle {
-                    width: fullRep.width
-                    height: fullRep.height
-                    radius: 13
+                    width: column.width
+                    height: column.height
+                    topLeftRadius: 13
+                    topRightRadius: 13
+                    bottomLeftRadius: plasmoid.configuration.bottomCornerRadius
+                    bottomRightRadius: plasmoid.configuration.bottomCornerRadius
                     antialiasing: true
                 }
             }

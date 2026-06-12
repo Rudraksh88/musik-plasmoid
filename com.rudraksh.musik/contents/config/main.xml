@@ -172,6 +172,9 @@
         <entry name="albumCoverRadius" type="Int">
             <default>3</default>
         </entry>
+        <entry name="bottomCornerRadius" type="Int"> <!-- popup bottom corner rounding -->
+            <default>13</default>
+        </entry>
         <entry name="sourceIndex" type="string">
             <default>0</default>
         </entry>

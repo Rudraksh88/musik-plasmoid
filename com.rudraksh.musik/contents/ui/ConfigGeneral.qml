@@ -14,6 +14,7 @@ KCM.SimpleKCM {
     property alias cfg_panelIcon: panelIcon.value
     property alias cfg_useAlbumCoverAsPanelIcon: useAlbumCoverAsPanelIcon.checked
     property alias cfg_albumCoverRadius: albumCoverRadius.value
+    property alias cfg_bottomCornerRadius: bottomCornerRadius.value
     property alias cfg_commandsInPanel: commandsInPanel.checked
     property alias cfg_maxSongWidthInPanel: maxSongWidthInPanel.value
     property alias cfg_sourceIndex: sourceComboBox.currentIndex
@@ -852,6 +853,36 @@ KCM.SimpleKCM {
                     stepSize: albumCoverRadius.stepSize
                     value: albumCoverRadius.value
                     onValueChanged: albumCoverRadius.value = value
+                }
+            }
+
+            Label {
+                text: i18n("Bottom corner radius (full representation):")
+                font.weight: Font.DemiBold
+                font.pointSize: 10
+                opacity: 0.5
+                Layout.bottomMargin: -10
+                Layout.topMargin: 10
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.bottomMargin: 10
+
+                Slider {
+                    id: bottomCornerRadius
+                    Layout.minimumWidth: 250
+                    from: 0
+                    to: 40
+                    stepSize: 1
+                }
+
+                SpinBox {
+                    from: bottomCornerRadius.from
+                    to: bottomCornerRadius.to
+                    stepSize: bottomCornerRadius.stepSize
+                    value: bottomCornerRadius.value
+                    onValueChanged: bottomCornerRadius.value = value
                 }
             }
         }
