@@ -1027,14 +1027,23 @@ PlasmoidItem {
             // radius, so the bottom rounding is a manual, configurable knob.
             layer.enabled: true
             layer.effect: OpacityMask {
-                maskSource: Rectangle {
+                maskSource: Item {
                     width: column.width
                     height: column.height
-                    topLeftRadius: 13
-                    topRightRadius: 13
-                    bottomLeftRadius: plasmoid.configuration.bottomCornerRadius
-                    bottomRightRadius: plasmoid.configuration.bottomCornerRadius
-                    antialiasing: true
+                    // Inset 1px on left/right/bottom so the clip lines up
+                    // with the theme bg edge (contents otherwise poke 1px
+                    // past the SVG's visible border).
+                    Rectangle {
+                        x: 1
+                        y: 0
+                        width: parent.width - 2
+                        height: parent.height - 1
+                        topLeftRadius: 13
+                        topRightRadius: 13
+                        bottomLeftRadius: plasmoid.configuration.bottomCornerRadius
+                        bottomRightRadius: plasmoid.configuration.bottomCornerRadius
+                        antialiasing: true
+                    }
                 }
             }
 
