@@ -1034,10 +1034,10 @@ PlasmoidItem {
                     // with the theme bg edge (contents otherwise poke 1px
                     // past the SVG's visible border).
                     Rectangle {
-                        x: 1
+                        x: 2
                         y: 0
-                        width: parent.width - 2
-                        height: parent.height - 1
+                        width: parent.width - 4
+                        height: parent.height - 2
                         topLeftRadius: 13
                         topRightRadius: 13
                         bottomLeftRadius: plasmoid.configuration.bottomCornerRadius
